@@ -44,7 +44,8 @@ function epochDate(epoch: string) {
 function trackForOmm(omm: OMMJsonObject): GroundTrack | null {
   const satrec = json2satrec(omm);
   const start = epochDate(omm.EPOCH);
-  const periodMs = (1440 / omm.MEAN_MOTION) * 60 * 1000;
+  const meanMotion = Number(omm.MEAN_MOTION);
+  const periodMs = (1440 / meanMotion) * 60 * 1000;
   const points: { lon: number; lat: number }[] = [];
 
   for (let i = 0; i <= STEPS; i += 1) {
@@ -74,8 +75,8 @@ function trackForOmm(omm: OMMJsonObject): GroundTrack | null {
 
   return {
     name: omm.OBJECT_NAME,
-    catalogId: omm.NORAD_CAT_ID,
-    inclinationDeg: omm.INCLINATION,
+    catalogId: Number(omm.NORAD_CAT_ID),
+    inclinationDeg: Number(omm.INCLINATION),
     epoch: omm.EPOCH,
     segments,
   };
