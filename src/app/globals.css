@@ -7,6 +7,10 @@ html[data-theme="light"] {
   --line: #d8d4cc;
   --card: #fff;
   --accent: #1f4d3a;
+  --shell-43: #b15b12;
+  --shell-53: #1f4d3a;
+  --shell-70: #215a8c;
+  --shell-97: #6b3a8c;
 }
 
 html[data-theme="dark"] {
@@ -17,6 +21,10 @@ html[data-theme="dark"] {
   --line: #2e2f2b;
   --card: #1b1c19;
   --accent: #8fbfa8;
+  --shell-43: #e09a55;
+  --shell-53: #8fbfa8;
+  --shell-70: #7eb3d9;
+  --shell-97: #c49ad6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,6 +36,10 @@ html[data-theme="dark"] {
     --line: #2e2f2b;
     --card: #1b1c19;
     --accent: #8fbfa8;
+    --shell-43: #e09a55;
+    --shell-53: #8fbfa8;
+    --shell-70: #7eb3d9;
+    --shell-97: #c49ad6;
   }
 }
 
@@ -285,22 +297,250 @@ th {
 }
 
 .track-map-sea {
-  fill: var(--bg);
+  fill: color-mix(in srgb, var(--accent) 8%, var(--bg));
+}
+
+.track-map-land {
+  fill: color-mix(in srgb, var(--ink) 16%, var(--card));
+  stroke: color-mix(in srgb, var(--ink) 22%, var(--line));
+  stroke-width: 0.25;
 }
 
 .track-map-grid {
   stroke: var(--line);
-  stroke-width: 0.4;
+  stroke-width: 0.35;
+  stroke-opacity: 0.7;
 }
 
 .track-map-path {
-  stroke: var(--accent);
-  stroke-width: 0.7;
-  stroke-opacity: 0.85;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  cursor: pointer;
+  opacity: 0.34;
+}
+
+.track-map-path.is-active {
+  opacity: 0.55;
+  stroke-dasharray: 2.4 3.2;
+  animation: track-crawl 16s linear infinite;
+}
+
+.track-map-trail,
+.track-map-future {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  cursor: pointer;
+}
+
+.track-map-future {
+  stroke-dasharray: 1.6 1.8;
+  opacity: 0.75;
+}
+
+.track-map-path.is-dim,
+.track-map-trail.is-dim,
+.track-map-future.is-dim,
+.track-map-craft.is-dim {
+  opacity: 0.16;
+}
+
+.track-map-path[data-shell="43"],
+.track-map-trail[data-shell="43"],
+.track-map-future[data-shell="43"] {
+  stroke: var(--shell-43);
+}
+
+.track-map-path[data-shell="53"],
+.track-map-trail[data-shell="53"],
+.track-map-future[data-shell="53"] {
+  stroke: var(--shell-53);
+}
+
+.track-map-path[data-shell="70"],
+.track-map-trail[data-shell="70"],
+.track-map-future[data-shell="70"] {
+  stroke: var(--shell-70);
+}
+
+.track-map-path[data-shell="97"],
+.track-map-trail[data-shell="97"],
+.track-map-future[data-shell="97"] {
+  stroke: var(--shell-97);
+}
+
+.track-map-craft {
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.track-map-craft[data-shell="43"] {
+  color: var(--shell-43);
+}
+
+.track-map-craft[data-shell="53"] {
+  color: var(--shell-53);
+}
+
+.track-map-craft[data-shell="70"] {
+  color: var(--shell-70);
+}
+
+.track-map-craft[data-shell="97"] {
+  color: var(--shell-97);
+}
+
+.track-map-nose {
+  fill: currentColor;
+}
+
+.track-map-sat {
+  fill: var(--card);
+  stroke: currentColor;
+  stroke-width: 0.4;
+  cursor: pointer;
+}
+
+.track-map-pulse {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.45;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sat-pulse 2.2s ease-out infinite;
+}
+
+.track-map-label {
+  fill: var(--ink);
+  font-size: 5.2px;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  pointer-events: none;
+}
+
+@keyframes track-crawl {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+@keyframes sat-pulse {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
 }
 
 .track-map figcaption {
   margin: 0.45rem 0 0;
   font-size: 0.8rem;
   color: var(--muted);
+}
+
+.track-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.track-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.track-legend-btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.track-legend-btn.is-off {
+  opacity: 0.4;
+}
+
+.track-clock {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.track-live-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #c23b22;
+  box-shadow: 0 0 0 0 rgba(194, 59, 34, 0.55);
+  animation: live-dot 1.4s ease-out infinite;
+}
+
+@keyframes live-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(194, 59, 34, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 0.45rem rgba(194, 59, 34, 0);
+  }
+}
+
+.track-swatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.track-swatch[data-shell="43"] {
+  background: var(--shell-43);
+}
+
+.track-swatch[data-shell="53"] {
+  background: var(--shell-53);
+}
+
+.track-swatch[data-shell="70"] {
+  background: var(--shell-70);
+}
+
+.track-swatch[data-shell="97"] {
+  background: var(--shell-97);
+}
+
+.track-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.track-table tbody tr {
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track-map-pulse,
+  .track-map-path.is-active,
+  .track-live-dot {
+    animation: none;
+  }
 }
