@@ -1,3 +1,4 @@
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import {
   constellation,
   coverage,
@@ -29,10 +30,15 @@ function SourceLine({
 export default function HomePage() {
   return (
     <main>
-      <h1>Starlink stats</h1>
-      <p className="lede">
-        Public figures only. Estimates are labelled. Compiled {pageFetched}.
-      </p>
+      <header className="page-head">
+        <div>
+          <h1>Starlink stats</h1>
+          <p className="lede">
+            Public figures only. Estimates are labelled. Compiled {pageFetched}.
+          </p>
+        </div>
+        <ThemeSwitcher />
+      </header>
 
       <section>
         <h2>Satellites in orbit</h2>
