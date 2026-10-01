@@ -51,7 +51,7 @@ function trackForOmm(omm: OMMJsonObject): GroundTrack | null {
   for (let i = 0; i <= STEPS; i += 1) {
     const date = new Date(start.getTime() + (periodMs * i) / STEPS);
     const pv = propagate(satrec, date);
-    if (!pv.position) return null;
+    if (!pv?.position) return null;
     const geo = eciToGeodetic(pv.position, gstime(date));
     points.push({
       lon: degreesLong(geo.longitude),
