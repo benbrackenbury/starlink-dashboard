@@ -81,6 +81,7 @@ export default function HomePage() {
           </table>
         </div>
         <SourceLine {...constellation.source} />
+        <SourceLine {...constellation.sourceV3} />
       </section>
 
       <section>
