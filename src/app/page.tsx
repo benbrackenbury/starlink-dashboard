@@ -1,0 +1,155 @@
+import {
+  constellation,
+  coverage,
+  finance,
+  launches,
+  pageFetched,
+} from "@/data/stats";
+
+function SourceLine({
+  label,
+  url,
+  published,
+}: {
+  label: string;
+  url: string;
+  published: string;
+}) {
+  return (
+    <p className="source">
+      Source:{" "}
+      <a href={url} rel="noreferrer">
+        {label}
+      </a>
+      . {published}.
+    </p>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <main>
+      <h1>Starlink stats</h1>
+      <p className="lede">
+        Public figures only. Estimates are labelled. Compiled {pageFetched}.
+      </p>
+
+      <section>
+        <h2>Satellites in orbit</h2>
+        <div className="figure">
+          {constellation.totalInOrbit.toLocaleString("en-GB")}
+        </div>
+        <p className="sub">
+          Total in orbit. {constellation.totalWorking.toLocaleString("en-GB")}{" "}
+          working.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Version (source labels)</th>
+              <th>In orbit</th>
+              <th>Working</th>
+            </tr>
+          </thead>
+          <tbody>
+            {constellation.versions.map((row) => (
+              <tr key={row.name}>
+                <td>
+                  {row.name}
+                  <div className="note">{row.note}</div>
+                </td>
+                <td>{row.inOrbit.toLocaleString("en-GB")}</td>
+                <td>{row.working.toLocaleString("en-GB")}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <SourceLine {...constellation.source} />
+      </section>
+
+      <section>
+        <h2>Launch history</h2>
+        <h3>Upcoming</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Mission</th>
+              <th>Time</th>
+              <th>Site</th>
+              <th>Payload</th>
+            </tr>
+          </thead>
+          <tbody>
+            {launches.upcoming.map((row) => (
+              <tr key={row.name}>
+                <td>
+                  {row.name}
+                  <div className="note">{row.status}</div>
+                </td>
+                <td>{row.date}</td>
+                <td>{row.site}</td>
+                <td>{row.payload}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <SourceLine {...launches.upcomingSource} />
+
+        <h3>Recent</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Mission</th>
+              <th>Time</th>
+              <th>Site</th>
+              <th>Payload</th>
+            </tr>
+          </thead>
+          <tbody>
+            {launches.recent.map((row) => (
+              <tr key={row.name}>
+                <td>
+                  {row.name}
+                  <div className="note">{row.status}</div>
+                </td>
+                <td>{row.date}</td>
+                <td>{row.site}</td>
+                <td>{row.payload}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <SourceLine {...launches.source} />
+      </section>
+
+      <div className="grid">
+        <section>
+          <h2>Estimated revenue and profit</h2>
+          <div className="figure">{finance.revenue}</div>
+          <p className="sub">
+            Estimate / reported figure: {finance.revenueLabel}, {finance.year}.
+          </p>
+          <div className="figure">{finance.profit}</div>
+          <p className="sub">
+            Estimate / reported figure: {finance.profitLabel}, {finance.year}.
+          </p>
+          <p className="note">{finance.caveat}</p>
+          <SourceLine {...finance.source} />
+        </section>
+
+        <section>
+          <h2>Where it operates</h2>
+          <div className="figure">{coverage.official}</div>
+          <p className="sub">Starlink’s own availability map wording.</p>
+          <p>
+            Prospectus reporting: {coverage.prospectus}. A country-level list
+            from SpaceX is not published as a static table; check the map for
+            current service areas.
+          </p>
+          <SourceLine {...coverage.sourceOfficial} />
+          <SourceLine {...coverage.sourceProspectus} />
+        </section>
+      </div>
+    </main>
+  );
+}

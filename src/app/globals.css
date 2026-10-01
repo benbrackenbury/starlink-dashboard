@@ -1,0 +1,130 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f2ee;
+  --ink: #1a1a18;
+  --muted: #5c5a55;
+  --line: #d8d4cc;
+  --card: #fff;
+  --accent: #1f4d3a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+main {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 4rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.35rem;
+}
+
+h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 1rem 0 0.4rem;
+}
+
+p.lede {
+  color: var(--muted);
+  margin: 0 0 2rem;
+  max-width: 40rem;
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1.25rem 1.35rem 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.figure {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sub {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.2rem 0 0.8rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.45rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.source {
+  margin: 0.9rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.source a {
+  color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.note {
+  margin: 0.6rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
