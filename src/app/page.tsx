@@ -43,82 +43,92 @@ export default function HomePage() {
           Total in orbit. {constellation.totalWorking.toLocaleString("en-GB")}{" "}
           working.
         </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Version (source labels)</th>
-              <th>In orbit</th>
-              <th>Working</th>
-            </tr>
-          </thead>
-          <tbody>
-            {constellation.versions.map((row) => (
-              <tr key={row.name}>
-                <td>
-                  {row.name}
-                  <div className="note">{row.note}</div>
-                </td>
-                <td>{row.inOrbit.toLocaleString("en-GB")}</td>
-                <td>{row.working.toLocaleString("en-GB")}</td>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Version (source labels)</th>
+                <th>In orbit</th>
+                <th>Working</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {constellation.versions.map((row) => (
+                <tr key={row.name}>
+                  <td data-label="Version">
+                    {row.name}
+                    <div className="note">{row.note}</div>
+                  </td>
+                  <td data-label="In orbit">
+                    {row.inOrbit.toLocaleString("en-GB")}
+                  </td>
+                  <td data-label="Working">
+                    {row.working.toLocaleString("en-GB")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <SourceLine {...constellation.source} />
       </section>
 
       <section>
         <h2>Launch history</h2>
         <h3>Upcoming</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Mission</th>
-              <th>Time</th>
-              <th>Site</th>
-              <th>Payload</th>
-            </tr>
-          </thead>
-          <tbody>
-            {launches.upcoming.map((row) => (
-              <tr key={row.name}>
-                <td>
-                  {row.name}
-                  <div className="note">{row.status}</div>
-                </td>
-                <td>{row.date}</td>
-                <td>{row.site}</td>
-                <td>{row.payload}</td>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mission</th>
+                <th>Time</th>
+                <th>Site</th>
+                <th>Payload</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {launches.upcoming.map((row) => (
+                <tr key={row.name}>
+                  <td data-label="Mission">
+                    {row.name}
+                    <div className="note">{row.status}</div>
+                  </td>
+                  <td data-label="Time">{row.date}</td>
+                  <td data-label="Site">{row.site}</td>
+                  <td data-label="Payload">{row.payload}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <SourceLine {...launches.upcomingSource} />
 
         <h3>Recent</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Mission</th>
-              <th>Time</th>
-              <th>Site</th>
-              <th>Payload</th>
-            </tr>
-          </thead>
-          <tbody>
-            {launches.recent.map((row) => (
-              <tr key={row.name}>
-                <td>
-                  {row.name}
-                  <div className="note">{row.status}</div>
-                </td>
-                <td>{row.date}</td>
-                <td>{row.site}</td>
-                <td>{row.payload}</td>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mission</th>
+                <th>Time</th>
+                <th>Site</th>
+                <th>Payload</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {launches.recent.map((row) => (
+                <tr key={row.name}>
+                  <td data-label="Mission">
+                    {row.name}
+                    <div className="note">{row.status}</div>
+                  </td>
+                  <td data-label="Time">{row.date}</td>
+                  <td data-label="Site">{row.site}</td>
+                  <td data-label="Payload">{row.payload}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <SourceLine {...launches.source} />
       </section>
 
