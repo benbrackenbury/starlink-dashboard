@@ -7,7 +7,7 @@ export type Source = {
 export const pageFetched = "1 October 2026";
 
 export const constellation = {
-  totalInOrbit: 11093,
+  totalInOrbit: 11119,
   totalWorking: 11078,
   versions: [
     {
@@ -24,15 +24,20 @@ export const constellation = {
     },
     {
       name: "V3 / Gen3",
-      note: "McDowell records 20 V3 satellites launched and 20 failed to orbit as of this census.",
-      inOrbit: 0,
+      note: "Starship Flight 14 (Starlink Group 31-1) on 28 September 2026 deployed 26 V3 satellites. SpaceX reported contact with all 26; they are in on-orbit checkout and orbit-raising, not yet counted as serving customers. McDowell’s 31 August census predates this launch and listed 20 earlier V3s that failed to reach orbit.",
+      inOrbit: 26,
       working: 0,
     },
   ],
   source: {
     label: "Jonathan McDowell, Starlink launch statistics",
     url: "https://planet4589.org/space/con/star/stats.html",
-    published: "31 August 2026",
+    published: "31 August 2026 (V1/V2 totals; V3 row predates Flight 14)",
+  } satisfies Source,
+  sourceV3: {
+    label: "SpaceX, Starship Flight 14",
+    url: "https://www.spacex.com/launches/starship-flight-14/",
+    published: "28 September 2026",
   } satisfies Source,
 };
 
@@ -42,7 +47,7 @@ export const launches = {
       name: "Starlink Group 31-1 (Starship Flight 14)",
       date: "28 September 2026, 12:48 UTC",
       site: "Starbase, Texas",
-      payload: "Starship test flight; Starlink Group 31-1",
+      payload: "26 Starlink V3 satellites",
       status: "Launch successful",
     },
     {
