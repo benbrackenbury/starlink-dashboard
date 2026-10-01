@@ -1,3 +1,4 @@
+import { WORLD_LAND_PATH } from "@/data/worldLandPath";
 import type { GroundTrackSet } from "@/lib/groundTracks";
 
 export function GroundTrackMap({ data }: { data: GroundTrackSet }) {
@@ -9,9 +10,10 @@ export function GroundTrackMap({ data }: { data: GroundTrackSet }) {
       <svg
         viewBox="0 0 360 180"
         role="img"
-        aria-label="Ground tracks for a 12-satellite Starlink subset"
+        aria-label="Equirectangular world map with ground tracks for a 12-satellite Starlink subset"
       >
         <rect className="track-map-sea" x="0" y="0" width="360" height="180" />
+        <path className="track-map-land" d={WORLD_LAND_PATH} />
         {meridians.map((lon) => (
           <line
             key={`m${lon}`}
@@ -44,7 +46,9 @@ export function GroundTrackMap({ data }: { data: GroundTrackSet }) {
         )}
       </svg>
       <figcaption>
-        Equirectangular map. Longitude −180° to 180°, latitude −90° to 90°.
+        Equirectangular world map with one-orbit ground tracks. Longitude −180°
+        to 180°, latitude −90° to 90°. Land from Natural Earth 110m (public
+        domain).
       </figcaption>
     </figure>
   );
