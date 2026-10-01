@@ -1,3 +1,5 @@
+import { GroundTrackMap } from "@/components/GroundTrackMap";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import {
   constellation,
   coverage,
@@ -5,6 +7,7 @@ import {
   launches,
   pageFetched,
 } from "@/data/stats";
+import { getGroundTracks } from "@/lib/groundTracks";
 
 function SourceLine({
   label,
@@ -27,12 +30,19 @@ function SourceLine({
 }
 
 export default function HomePage() {
+  const groundTracks = getGroundTracks();
+
   return (
     <main>
-      <h1>Starlink stats</h1>
-      <p className="lede">
-        Public figures only. Estimates are labelled. Compiled {pageFetched}.
-      </p>
+      <header className="page-head">
+        <div>
+          <h1>Starlink stats</h1>
+          <p className="lede">
+            Public figures only. Estimates are labelled. Compiled {pageFetched}.
+          </p>
+        </div>
+        <ThemeSwitcher />
+      </header>
 
       <section>
         <h2>Satellites in orbit</h2>
@@ -71,6 +81,45 @@ export default function HomePage() {
           </table>
         </div>
         <SourceLine {...constellation.source} />
+      </section>
+
+      <section>
+        <h2>Ground tracks</h2>
+        <p className="sub">{groundTracks.subsetNote}</p>
+        {groundTracks.tracks.length > 0 ? (
+          <GroundTrackMap data={groundTracks} />
+        ) : (
+          <p>Unavailable: SGP4 did not return positions for the stored GP sets.</p>
+        )}
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Satellite</th>
+                <th>NORAD</th>
+                <th>Inclination</th>
+                <th>GP epoch (UTC)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groundTracks.tracks.map((track) => (
+                <tr key={track.catalogId}>
+                  <td data-label="Satellite">{track.name}</td>
+                  <td data-label="NORAD">{track.catalogId}</td>
+                  <td data-label="Inclination">
+                    {track.inclinationDeg.toFixed(2)}°
+                  </td>
+                  <td data-label="GP epoch">{track.epoch.replace("T", " ")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <SourceLine
+          label={groundTracks.sourceLabel}
+          url={groundTracks.sourceUrl}
+          published={`GP data fetched ${groundTracks.fetchedLabel}`}
+        />
       </section>
 
       <section>
