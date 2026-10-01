@@ -317,49 +317,98 @@ th {
   stroke-linecap: round;
   stroke-linejoin: round;
   cursor: pointer;
+  opacity: 0.34;
+}
+
+.track-map-path.is-active {
+  opacity: 0.55;
+  stroke-dasharray: 2.4 3.2;
+  animation: track-crawl 16s linear infinite;
+}
+
+.track-map-trail,
+.track-map-future {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  cursor: pointer;
+}
+
+.track-map-future {
+  stroke-dasharray: 1.6 1.8;
+  opacity: 0.75;
 }
 
 .track-map-path.is-dim,
-.track-map-sat.is-dim {
-  opacity: 0.18;
+.track-map-trail.is-dim,
+.track-map-future.is-dim,
+.track-map-craft.is-dim {
+  opacity: 0.16;
 }
 
-.track-map-path[data-shell="43"] {
+.track-map-path[data-shell="43"],
+.track-map-trail[data-shell="43"],
+.track-map-future[data-shell="43"] {
   stroke: var(--shell-43);
 }
 
-.track-map-path[data-shell="53"] {
+.track-map-path[data-shell="53"],
+.track-map-trail[data-shell="53"],
+.track-map-future[data-shell="53"] {
   stroke: var(--shell-53);
 }
 
-.track-map-path[data-shell="70"] {
+.track-map-path[data-shell="70"],
+.track-map-trail[data-shell="70"],
+.track-map-future[data-shell="70"] {
   stroke: var(--shell-70);
 }
 
-.track-map-path[data-shell="97"] {
+.track-map-path[data-shell="97"],
+.track-map-trail[data-shell="97"],
+.track-map-future[data-shell="97"] {
   stroke: var(--shell-97);
 }
 
-.track-map-sat[data-shell="43"] {
-  fill: var(--shell-43);
+.track-map-craft {
+  cursor: pointer;
+  color: var(--accent);
 }
 
-.track-map-sat[data-shell="53"] {
-  fill: var(--shell-53);
+.track-map-craft[data-shell="43"] {
+  color: var(--shell-43);
 }
 
-.track-map-sat[data-shell="70"] {
-  fill: var(--shell-70);
+.track-map-craft[data-shell="53"] {
+  color: var(--shell-53);
 }
 
-.track-map-sat[data-shell="97"] {
-  fill: var(--shell-97);
+.track-map-craft[data-shell="70"] {
+  color: var(--shell-70);
+}
+
+.track-map-craft[data-shell="97"] {
+  color: var(--shell-97);
+}
+
+.track-map-nose {
+  fill: currentColor;
 }
 
 .track-map-sat {
+  fill: var(--card);
+  stroke: currentColor;
+  stroke-width: 0.4;
   cursor: pointer;
-  stroke: var(--card);
-  stroke-width: 0.35;
+}
+
+.track-map-pulse {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.45;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sat-pulse 2.2s ease-out infinite;
 }
 
 .track-map-label {
@@ -367,6 +416,23 @@ th {
   font-size: 5.2px;
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
   pointer-events: none;
+}
+
+@keyframes track-crawl {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+@keyframes sat-pulse {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
 }
 
 .track-map figcaption {
@@ -414,6 +480,27 @@ th {
   font-size: 0.8rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.track-live-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #c23b22;
+  box-shadow: 0 0 0 0 rgba(194, 59, 34, 0.55);
+  animation: live-dot 1.4s ease-out infinite;
+}
+
+@keyframes live-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(194, 59, 34, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 0.45rem rgba(194, 59, 34, 0);
+  }
 }
 
 .track-swatch {
@@ -450,6 +537,10 @@ th {
   cursor: pointer;
 }
 
-.track-table tbody tr.is-selected {
-  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+@media (prefers-reduced-motion: reduce) {
+  .track-map-pulse,
+  .track-map-path.is-active,
+  .track-live-dot {
+    animation: none;
+  }
 }

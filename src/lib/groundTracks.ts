@@ -40,6 +40,10 @@ export type GeoPosition = {
   altKm: number;
 };
 
+export type LiveFix = GeoPosition & {
+  headingDeg: number;
+};
+
 const STEPS = 72;
 const SHELL_TARGETS: ShellId[] = ["43", "53", "70", "97"];
 
@@ -86,6 +90,51 @@ export function positionFromSatrec(
   };
 }
 
+export function headingDeg(from: GeoPosition, to: GeoPosition) {
+  let dx = lonToX(to.lon) - lonToX(from.lon);
+  if (dx > 180) dx -= 360;
+  if (dx < -180) dx += 360;
+  const dy = latToY(to.lat) - latToY(from.lat);
+  return (Math.atan2(dy, dx) * 180) / Math.PI;
+}
+
+export function segmentsFromLonLat(
+  points: { lon: number; lat: number }[],
+): TrackSegment[] {
+  const segments: TrackSegment[] = [];
+  let current: string[] = [];
+  let prevLon: number | null = null;
+
+  for (const point of points) {
+    if (prevLon !== null && Math.abs(point.lon - prevLon) > 180) {
+      if (current.length > 1) segments.push({ points: current.join(" ") });
+      current = [];
+    }
+    current.push(
+      `${lonToX(point.lon).toFixed(2)},${latToY(point.lat).toFixed(2)}`,
+    );
+    prevLon = point.lon;
+  }
+  if (current.length > 1) segments.push({ points: current.join(" ") });
+  return segments;
+}
+
+export function samplePositions(
+  satrec: SatRec,
+  start: Date,
+  durationMs: number,
+  steps: number,
+): GeoPosition[] {
+  const points: GeoPosition[] = [];
+  if (steps <= 0) return points;
+  for (let i = 0; i <= steps; i += 1) {
+    const date = new Date(start.getTime() + (durationMs * i) / steps);
+    const geo = positionFromSatrec(satrec, date);
+    if (geo) points.push(geo);
+  }
+  return points;
+}
+
 function epochDate(epoch: string) {
   return new Date(epoch.endsWith("Z") ? epoch : `${epoch}Z`);
 }
@@ -104,22 +153,6 @@ function trackForOmm(omm: OMMJsonObject): GroundTrack | null {
     points.push({ lon: geo.lon, lat: geo.lat });
   }
 
-  const segments: TrackSegment[] = [];
-  let current: string[] = [];
-  let prevLon: number | null = null;
-
-  for (const point of points) {
-    if (prevLon !== null && Math.abs(point.lon - prevLon) > 180) {
-      if (current.length > 1) segments.push({ points: current.join(" ") });
-      current = [];
-    }
-    current.push(
-      `${lonToX(point.lon).toFixed(2)},${latToY(point.lat).toFixed(2)}`,
-    );
-    prevLon = point.lon;
-  }
-  if (current.length > 1) segments.push({ points: current.join(" ") });
-
   return {
     name: omm.OBJECT_NAME,
     catalogId: Number(omm.NORAD_CAT_ID),
@@ -128,7 +161,7 @@ function trackForOmm(omm: OMMJsonObject): GroundTrack | null {
     shell: shellForInclination(Number(omm.INCLINATION)),
     periodMin: 1440 / meanMotion,
     omm,
-    segments,
+    segments: segmentsFromLonLat(points),
   };
 }
 

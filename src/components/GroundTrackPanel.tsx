@@ -5,12 +5,16 @@ import { GroundTrackMap } from "@/components/GroundTrackMap";
 import {
   formatLat,
   formatLon,
+  headingDeg,
   positionFromSatrec,
+  samplePositions,
   satrecFromOmm,
+  segmentsFromLonLat,
   SHELLS,
-  type GeoPosition,
   type GroundTrackSet,
+  type LiveFix,
   type ShellId,
+  type TrackSegment,
 } from "@/lib/groundTracks";
 
 const SHELL_LABEL: Record<ShellId, string> = {
@@ -20,8 +24,15 @@ const SHELL_LABEL: Record<ShellId, string> = {
   "97": "97°",
 };
 
+const LIVE_MS = 250;
+const TRAIL_MS = 15 * 60 * 1000;
+const TRAIL_STEPS = 18;
+const FUTURE_MS = 8 * 60 * 1000;
+const FUTURE_STEPS = 10;
+const HEADING_AHEAD_MS = 20_000;
+
 function formatClock(date: Date) {
-  return date.toISOString().replace("T", " ").replace("Z", " UTC");
+  return `${date.toISOString().slice(0, 19).replace("T", " ")} UTC`;
 }
 
 export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
@@ -33,7 +44,9 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
   });
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [now, setNow] = useState<Date | null>(null);
-  const [positions, setPositions] = useState<Record<number, GeoPosition>>({});
+  const [live, setLive] = useState<Record<number, LiveFix>>({});
+  const [trails, setTrails] = useState<Record<number, TrackSegment[]>>({});
+  const [futures, setFutures] = useState<Record<number, TrackSegment[]>>({});
 
   const satrecs = useMemo(
     () =>
@@ -45,18 +58,53 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
   );
 
   useEffect(() => {
+    let frame = 0;
     function tick() {
       const date = new Date();
-      const next: Record<number, GeoPosition> = {};
+      const nextLive: Record<number, LiveFix> = {};
+      const refreshPath = frame % 4 === 0;
+      const nextTrails: Record<number, TrackSegment[]> = {};
+      const nextFutures: Record<number, TrackSegment[]> = {};
+
       for (const item of satrecs) {
-        const pos = positionFromSatrec(item.satrec, date);
-        if (pos) next[item.catalogId] = pos;
+        const here = positionFromSatrec(item.satrec, date);
+        if (!here) continue;
+        const ahead = positionFromSatrec(
+          item.satrec,
+          new Date(date.getTime() + HEADING_AHEAD_MS),
+        );
+        nextLive[item.catalogId] = {
+          ...here,
+          headingDeg: ahead ? headingDeg(here, ahead) : 0,
+        };
+        if (refreshPath) {
+          const behind = samplePositions(
+            item.satrec,
+            new Date(date.getTime() - TRAIL_MS),
+            TRAIL_MS,
+            TRAIL_STEPS,
+          );
+          const forward = samplePositions(
+            item.satrec,
+            date,
+            FUTURE_MS,
+            FUTURE_STEPS,
+          );
+          nextTrails[item.catalogId] = segmentsFromLonLat(behind);
+          nextFutures[item.catalogId] = segmentsFromLonLat(forward);
+        }
       }
+
       setNow(date);
-      setPositions(next);
+      setLive(nextLive);
+      if (refreshPath) {
+        setTrails(nextTrails);
+        setFutures(nextFutures);
+      }
+      frame += 1;
     }
     tick();
-    const id = window.setInterval(tick, 1000);
+    const id = window.setInterval(tick, LIVE_MS);
     return () => window.clearInterval(id);
   }, [satrecs]);
 
@@ -93,16 +141,17 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
           ))}
         </div>
         <p className="track-clock">
-          {now
-            ? `Positions now · ${formatClock(now)}`
-            : "Positions update after load"}
+          <span className="track-live-dot" aria-hidden="true" />
+          {now ? `Live · ${formatClock(now)}` : "Live positions starting…"}
         </p>
       </div>
 
       {visibleTracks.length > 0 ? (
         <GroundTrackMap
           tracks={visibleTracks}
-          positions={positions}
+          live={live}
+          trails={trails}
+          futures={futures}
           selectedId={activeId}
           onSelect={setSelectedId}
         />
@@ -124,7 +173,7 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
           </thead>
           <tbody>
             {visibleTracks.map((track) => {
-              const pos = positions[track.catalogId];
+              const pos = live[track.catalogId];
               const selected = activeId === track.catalogId;
               return (
                 <tr
@@ -154,7 +203,9 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
                       : "…"}
                   </td>
                   <td data-label="Altitude">
-                    {pos ? `${Math.round(pos.altKm).toLocaleString("en-GB")} km` : "…"}
+                    {pos
+                      ? `${Math.round(pos.altKm).toLocaleString("en-GB")} km`
+                      : "…"}
                   </td>
                   <td data-label="Inclination">
                     {track.inclinationDeg.toFixed(2)}°
