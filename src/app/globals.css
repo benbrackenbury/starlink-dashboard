@@ -313,6 +313,7 @@ th {
 }
 
 .track-map-path {
+  fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
   cursor: pointer;
@@ -323,32 +324,36 @@ th {
   opacity: 0.18;
 }
 
-.track-map-path[data-shell="43"],
-.track-map-sat[data-shell="43"] {
+.track-map-path[data-shell="43"] {
   stroke: var(--shell-43);
+}
+
+.track-map-path[data-shell="53"] {
+  stroke: var(--shell-53);
+}
+
+.track-map-path[data-shell="70"] {
+  stroke: var(--shell-70);
+}
+
+.track-map-path[data-shell="97"] {
+  stroke: var(--shell-97);
+}
+
+.track-map-sat[data-shell="43"] {
   fill: var(--shell-43);
 }
 
-.track-map-path[data-shell="53"],
 .track-map-sat[data-shell="53"] {
-  stroke: var(--shell-53);
   fill: var(--shell-53);
 }
 
-.track-map-path[data-shell="70"],
 .track-map-sat[data-shell="70"] {
-  stroke: var(--shell-70);
   fill: var(--shell-70);
 }
 
-.track-map-path[data-shell="97"],
 .track-map-sat[data-shell="97"] {
-  stroke: var(--shell-97);
   fill: var(--shell-97);
-}
-
-.track-map-path {
-  fill: none;
 }
 
 .track-map-sat {
