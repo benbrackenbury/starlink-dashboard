@@ -183,6 +183,10 @@ th {
   .grid {
     grid-template-columns: 1fr;
   }
+
+  .page-head {
+    flex-direction: column;
+  }
 }
 
 .note {
