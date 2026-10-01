@@ -1,3 +1,4 @@
+import { GroundTrackMap } from "@/components/GroundTrackMap";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import {
   constellation,
@@ -6,6 +7,7 @@ import {
   launches,
   pageFetched,
 } from "@/data/stats";
+import { getGroundTracks } from "@/lib/groundTracks";
 
 function SourceLine({
   label,
@@ -28,6 +30,8 @@ function SourceLine({
 }
 
 export default function HomePage() {
+  const groundTracks = getGroundTracks();
+
   return (
     <main>
       <header className="page-head">
@@ -71,6 +75,41 @@ export default function HomePage() {
           </tbody>
         </table>
         <SourceLine {...constellation.source} />
+      </section>
+
+      <section>
+        <h2>Ground tracks</h2>
+        <p className="sub">{groundTracks.subsetNote}</p>
+        {groundTracks.tracks.length > 0 ? (
+          <GroundTrackMap data={groundTracks} />
+        ) : (
+          <p>Unavailable: SGP4 did not return positions for the stored GP sets.</p>
+        )}
+        <table>
+          <thead>
+            <tr>
+              <th>Satellite</th>
+              <th>NORAD</th>
+              <th>Inclination</th>
+              <th>GP epoch (UTC)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {groundTracks.tracks.map((track) => (
+              <tr key={track.catalogId}>
+                <td>{track.name}</td>
+                <td>{track.catalogId}</td>
+                <td>{track.inclinationDeg.toFixed(2)}°</td>
+                <td>{track.epoch.replace("T", " ")}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <SourceLine
+          label={groundTracks.sourceLabel}
+          url={groundTracks.sourceUrl}
+          published={`GP data fetched ${groundTracks.fetchedLabel}`}
+        />
       </section>
 
       <section>

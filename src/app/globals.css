@@ -194,3 +194,37 @@ th {
   font-size: 0.9rem;
   color: var(--muted);
 }
+
+.track-map {
+  margin: 0 0 1rem;
+}
+
+.track-map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+}
+
+.track-map-sea {
+  fill: var(--bg);
+}
+
+.track-map-grid {
+  stroke: var(--line);
+  stroke-width: 0.4;
+}
+
+.track-map-path {
+  stroke: var(--accent);
+  stroke-width: 0.7;
+  stroke-opacity: 0.85;
+}
+
+.track-map figcaption {
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
