@@ -230,6 +230,16 @@ table td:first-child {
   color: var(--accent);
 }
 
+.attrib {
+  margin: 1.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.attrib a {
+  color: var(--accent);
+}
+
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

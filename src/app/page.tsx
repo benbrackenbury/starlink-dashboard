@@ -200,6 +200,12 @@ export default function HomePage() {
           <SourceLine {...coverage.sourceProspectus} />
         </section>
       </div>
+      <p className="attrib">
+        Ben Brackenbury ·{" "}
+        <a href="https://x.com/benbrackenbury" rel="noreferrer">
+          @benbrackenbury
+        </a>
+      </p>
     </main>
   );
 }
