@@ -175,7 +175,7 @@ export default function HomePage() {
 
         <section>
           <h2>Where it operates</h2>
-          <div className="figure">{coverage.official}</div>
+          <div className="figure figure-phrase">{coverage.official}</div>
           <p className="sub">Starlink’s own availability map wording.</p>
           <p>
             Prospectus reporting: {coverage.prospectus}. A country-level list
