@@ -211,7 +211,9 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
                     {track.inclinationDeg.toFixed(2)}°
                   </td>
                   <td data-label="NORAD">{track.catalogId}</td>
-                  <td data-label="GP epoch">{track.epoch.replace("T", " ")}</td>
+                  <td data-label="GP epoch" className="num">
+                    {track.epoch.replace("T", " ").replace(/\.\d+$/, "")}
+                  </td>
                 </tr>
               );
             })}
