@@ -29,6 +29,23 @@ function SourceLine({
   );
 }
 
+function Cell({
+  label,
+  children,
+  note,
+}: {
+  label: string;
+  children: React.ReactNode;
+  note?: string;
+}) {
+  return (
+    <td data-label={label}>
+      <div className="cell-body">{children}</div>
+      {note ? <div className="note">{note}</div> : null}
+    </td>
+  );
+}
+
 export default function HomePage() {
   const groundTracks = getGroundTracks();
 
@@ -65,16 +82,15 @@ export default function HomePage() {
             <tbody>
               {constellation.versions.map((row) => (
                 <tr key={row.name}>
-                  <td data-label="Version">
+                  <Cell label="Version" note={row.note}>
                     {row.name}
-                    <div className="note">{row.note}</div>
-                  </td>
-                  <td data-label="In orbit">
+                  </Cell>
+                  <Cell label="In orbit">
                     {row.inOrbit.toLocaleString("en-GB")}
-                  </td>
-                  <td data-label="Working">
+                  </Cell>
+                  <Cell label="Working">
                     {row.working.toLocaleString("en-GB")}
-                  </td>
+                  </Cell>
                 </tr>
               ))}
             </tbody>
@@ -115,13 +131,12 @@ export default function HomePage() {
             <tbody>
               {launches.upcoming.map((row) => (
                 <tr key={row.name}>
-                  <td data-label="Mission">
+                  <Cell label="Mission" note={row.status}>
                     {row.name}
-                    <div className="note">{row.status}</div>
-                  </td>
-                  <td data-label="Time">{row.date}</td>
-                  <td data-label="Site">{row.site}</td>
-                  <td data-label="Payload">{row.payload}</td>
+                  </Cell>
+                  <Cell label="Time">{row.date}</Cell>
+                  <Cell label="Site">{row.site}</Cell>
+                  <Cell label="Payload">{row.payload}</Cell>
                 </tr>
               ))}
             </tbody>
@@ -143,13 +158,12 @@ export default function HomePage() {
             <tbody>
               {launches.recent.map((row) => (
                 <tr key={row.name}>
-                  <td data-label="Mission">
+                  <Cell label="Mission" note={row.status}>
                     {row.name}
-                    <div className="note">{row.status}</div>
-                  </td>
-                  <td data-label="Time">{row.date}</td>
-                  <td data-label="Site">{row.site}</td>
-                  <td data-label="Payload">{row.payload}</td>
+                  </Cell>
+                  <Cell label="Time">{row.date}</Cell>
+                  <Cell label="Site">{row.site}</Cell>
+                  <Cell label="Payload">{row.payload}</Cell>
                 </tr>
               ))}
             </tbody>

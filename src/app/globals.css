@@ -245,9 +245,13 @@ table td:first-child {
   text-wrap: pretty;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 840px) {
   main {
-    padding: 1.25rem 0.85rem max(3rem, env(safe-area-inset-bottom, 0px) + 1.75rem);
+    padding: 1.25rem 0.9rem max(3rem, env(safe-area-inset-bottom, 0px) + 1.75rem);
+  }
+
+  h2 {
+    text-wrap: balance;
   }
 
   section {
@@ -261,10 +265,24 @@ table td:first-child {
 
   .page-head {
     flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+
+  .theme-switcher {
+    align-self: flex-start;
+  }
+
+  .theme-switcher button {
+    padding: 0.45rem 0.7rem;
   }
 
   .figure:not(.figure-phrase) {
     font-size: 1.65rem;
+  }
+
+  .figure-phrase {
+    font-size: 1.2rem;
   }
 
   th,
@@ -277,6 +295,20 @@ table td:first-child {
 
   .track-map {
     overflow: hidden;
+  }
+
+  .track-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+  }
+
+  .track-legend {
+    width: 100%;
+  }
+
+  .track-legend-btn {
+    padding: 0.4rem 0.55rem;
   }
 
   table,
@@ -300,8 +332,8 @@ table td:first-child {
   tbody tr {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.2rem;
-    padding: 0.85rem 0;
+    gap: 0.28rem;
+    padding: 0.9rem 0;
     border-bottom: 1px solid var(--line);
   }
 
@@ -312,20 +344,49 @@ table td:first-child {
 
   tbody td {
     display: grid;
-    grid-template-columns: minmax(6.25rem, 34%) minmax(0, 1fr);
-    column-gap: 0.65rem;
+    grid-template-columns: 5.85rem minmax(0, 1fr);
+    column-gap: 0.75rem;
+    row-gap: 0.2rem;
+    align-items: start;
     border: 0;
-    padding: 0.12rem 0;
+    padding: 0.08rem 0;
   }
 
   tbody td::before {
     content: attr(data-label);
+    grid-column: 1;
+    grid-row: 1;
     color: var(--muted);
     font-size: 0.72rem;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding-top: 0.18rem;
+    letter-spacing: 0.03em;
+    line-height: 1.25;
+    white-space: normal;
+    padding-top: 0.14rem;
+  }
+
+  tbody td .cell-body {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  tbody td .note {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0.1rem 0 0;
+  }
+
+  .track-table tbody tr.is-selected {
+    background: color-mix(in srgb, var(--accent) 12%, var(--card));
+    border-radius: 4px;
+    padding-left: 0.45rem;
+    padding-right: 0.45rem;
+    margin-left: -0.45rem;
+    margin-right: -0.45rem;
+    width: calc(100% + 0.9rem);
   }
 }
 
@@ -620,5 +681,14 @@ td .note {
   .track-map-path.is-active,
   .track-live-dot {
     animation: none;
+  }
+}
+
+@media (max-width: 840px) {
+  .track-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.55rem;
   }
 }

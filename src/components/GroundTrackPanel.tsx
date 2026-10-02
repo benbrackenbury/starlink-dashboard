@@ -192,27 +192,39 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
                   }}
                 >
                   <td data-label="Satellite">
-                    <span className="track-name">
-                      <span className="track-swatch" data-shell={track.shell} />
-                      {track.name}
-                    </span>
+                    <div className="cell-body">
+                      <span className="track-name">
+                        <span className="track-swatch" data-shell={track.shell} />
+                        {track.name}
+                      </span>
+                    </div>
                   </td>
-                  <td data-label="Position now">
-                    {pos
-                      ? `${formatLat(pos.lat)} ${formatLon(pos.lon)}`
-                      : "…"}
+                  <td data-label="Position">
+                    <div className="cell-body">
+                      {pos
+                        ? `${formatLat(pos.lat)} ${formatLon(pos.lon)}`
+                        : "…"}
+                    </div>
                   </td>
                   <td data-label="Altitude">
-                    {pos
-                      ? `${Math.round(pos.altKm).toLocaleString("en-GB")} km`
-                      : "…"}
+                    <div className="cell-body">
+                      {pos
+                        ? `${Math.round(pos.altKm).toLocaleString("en-GB")} km`
+                        : "…"}
+                    </div>
                   </td>
-                  <td data-label="Inclination">
-                    {track.inclinationDeg.toFixed(2)}°
+                  <td data-label="Incl.">
+                    <div className="cell-body">
+                      {track.inclinationDeg.toFixed(2)}°
+                    </div>
                   </td>
-                  <td data-label="NORAD">{track.catalogId}</td>
-                  <td data-label="GP epoch" className="num">
-                    {track.epoch.replace("T", " ").replace(/\.\d+$/, "")}
+                  <td data-label="NORAD">
+                    <div className="cell-body">{track.catalogId}</div>
+                  </td>
+                  <td data-label="Epoch" className="num">
+                    <div className="cell-body">
+                      {track.epoch.replace("T", " ").replace(/\.\d+$/, "")}
+                    </div>
                   </td>
                 </tr>
               );
