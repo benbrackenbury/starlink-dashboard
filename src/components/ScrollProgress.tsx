@@ -5,13 +5,14 @@ import {
   jumpToSection,
   PAGE_SECTIONS,
   readActiveSection,
+  type SectionId,
 } from "@/lib/sections";
 
 export function ScrollProgress() {
   const bar = useRef<HTMLDivElement>(null);
   const fill = useRef<SVGCircleElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(PAGE_SECTIONS[0].id);
+  const [active, setActive] = useState<SectionId>(PAGE_SECTIONS[0].id);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {

@@ -5,10 +5,11 @@ import {
   jumpToSection,
   PAGE_SECTIONS,
   readActiveSection,
+  type SectionId,
 } from "@/lib/sections";
 
 export function ContentsNav() {
-  const [active, setActive] = useState(PAGE_SECTIONS[0].id);
+  const [active, setActive] = useState<SectionId>(PAGE_SECTIONS[0].id);
   const list = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export function ContentsNav() {
     });
   }
 
-  function go(event: React.MouseEvent<HTMLAnchorElement>, id: string) {
+  function go(event: React.MouseEvent<HTMLAnchorElement>, id: SectionId) {
     event.preventDefault();
     jumpToSection(id);
     setActive(id);
