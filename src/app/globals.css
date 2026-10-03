@@ -686,6 +686,68 @@ td .note {
   outline-offset: -2px;
 }
 
+.sight-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: flex-end;
+  margin: 0 0 0.75rem;
+}
+
+.sight-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sight-form input {
+  font: inherit;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.4rem 0.55rem;
+  width: 10rem;
+}
+
+.sight-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.sight-actions button {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sight-actions button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.sight-actions button[type="submit"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .track-map-pulse,
   .track-map-path.is-active,

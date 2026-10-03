@@ -1,5 +1,6 @@
 import { GroundTrackPanel } from "@/components/GroundTrackPanel";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { TrainSightingsPanel } from "@/components/TrainSightingsPanel";
 import {
   constellation,
   coverage,
@@ -113,6 +114,16 @@ export default function HomePage() {
           url={groundTracks.sourceUrl}
           published={`GP data fetched ${groundTracks.fetchedLabel}`}
         />
+      </section>
+
+      <section>
+        <h2>Visible trains</h2>
+        <p className="sub">
+          Times when a recent launch is still a string of lights: dark sky,
+          satellites in sunlight, at least 20° up, three or more in the same
+          pass.
+        </p>
+        <TrainSightingsPanel />
       </section>
 
       <section>
