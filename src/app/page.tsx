@@ -1,3 +1,4 @@
+import { ContentsNav } from "@/components/ContentsNav";
 import { GroundTrackPanel } from "@/components/GroundTrackPanel";
 import { Odometer } from "@/components/Odometer";
 import { ScrollProgress } from "@/components/ScrollProgress";
@@ -84,6 +85,7 @@ export default function HomePage() {
   return (
     <>
       <ScrollProgress />
+      <ContentsNav />
       <main>
         <header className="page-head">
           <div>
@@ -96,7 +98,7 @@ export default function HomePage() {
           <ThemeSwitcher />
         </header>
 
-        <section className="hero">
+        <section className="hero" id="orbit">
           <p className="kicker">Satellites in orbit</p>
           <div className="hero-figure">
             <Odometer value={constellation.totalInOrbit} />
@@ -133,7 +135,7 @@ export default function HomePage() {
           </p>
         </section>
 
-        <section>
+        <section id="version">
           <h2>By version</h2>
           <ul className="task-list version-list">
             {constellation.versions.map((row) => (
@@ -158,7 +160,7 @@ export default function HomePage() {
           <SourceLine {...constellation.sourceV3} />
         </section>
 
-        <section>
+        <section id="tracks">
           <h2>Ground tracks</h2>
           <p className="sub">{groundTracks.subsetNote}</p>
           {groundTracks.tracks.length > 0 ? (
@@ -176,7 +178,7 @@ export default function HomePage() {
           />
         </section>
 
-        <section>
+        <section id="trains">
           <h2>Visible trains</h2>
           <p className="sub">
             Times when a recent launch is still a string of lights: dark sky,
@@ -186,7 +188,7 @@ export default function HomePage() {
           <TrainSightingsPanel />
         </section>
 
-        <section>
+        <section id="launches">
           <h2>Launch history</h2>
           <h3>Upcoming</h3>
           <ul className="task-list">
@@ -206,7 +208,7 @@ export default function HomePage() {
         </section>
 
         <div className="grid">
-          <section>
+          <section id="finance">
             <h2>Estimated revenue and profit</h2>
             <div className="figure">{finance.revenue}</div>
             <p className="sub">
@@ -220,7 +222,7 @@ export default function HomePage() {
             <SourceLine {...finance.source} />
           </section>
 
-          <section>
+          <section id="coverage">
             <h2>Where it operates</h2>
             <div className="figure figure-phrase">{coverage.official}</div>
             <p className="sub">Starlink’s own availability map wording.</p>

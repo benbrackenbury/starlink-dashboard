@@ -82,6 +82,81 @@ body {
   pointer-events: none;
 }
 
+.scroll-pill-wrap {
+  display: none;
+}
+
+.contents {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .contents {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4rem;
+    position: fixed;
+    left: max(0.35rem, env(safe-area-inset-left));
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 12;
+    padding: 0.7rem 0.9rem 0.7rem 0.55rem;
+  }
+
+  .contents a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 0.85rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .contents-mark {
+    width: 0.7rem;
+    height: 3px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--ink) 28%, transparent);
+    transform: scaleX(calc(1 + var(--p, 0) * 1.65));
+    transform-origin: 0 50%;
+    transition: transform 0.12s ease, background-color 0.2s ease, width 0.2s ease;
+  }
+
+  .contents a.is-active .contents-mark {
+    width: 1.15rem;
+    background: var(--ink);
+  }
+
+  .contents-label {
+    position: absolute;
+    left: 1.35rem;
+    top: 50%;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(-6px, -50%);
+    pointer-events: none;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.12rem 0.5rem;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  .contents a:hover .contents-label,
+  .contents a:focus-visible .contents-label {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+section[id] {
+  scroll-margin-top: 1.2rem;
+}
+
 main {
   max-width: 1080px;
   margin: 0 auto;
@@ -1127,8 +1202,14 @@ td .note {
     transition: none;
   }
 
-  .theme-switcher button.is-active svg {
+  .theme-switcher button.is-active svg,
+  .contents-mark {
     transform: none;
+  }
+
+  .contents-mark,
+  .contents-label {
+    transition: none;
   }
 }
 
@@ -1138,5 +1219,113 @@ td .note {
     align-items: flex-start;
     justify-content: flex-start;
     gap: 0.55rem;
+  }
+}
+
+@media (max-width: 959px) {
+  .scroll-progress {
+    display: none;
+  }
+
+  .scroll-pill-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    position: fixed;
+    left: 50%;
+    bottom: max(0.75rem, env(safe-area-inset-bottom, 0px) + 0.45rem);
+    transform: translateX(-50%);
+    z-index: 20;
+    width: min(18rem, calc(100% - 1.6rem));
+    pointer-events: none;
+  }
+
+  .scroll-pill,
+  .scroll-pill-menu {
+    pointer-events: auto;
+  }
+
+  .scroll-pill {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 0.32rem 0.75rem 0.32rem 0.38rem;
+    cursor: pointer;
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 10%, transparent);
+  }
+
+  .scroll-pill svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .scroll-pill-track,
+  .scroll-pill-fill {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.75;
+  }
+
+  .scroll-pill-track {
+    opacity: 0.22;
+  }
+
+  .scroll-pill-fill {
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transform: rotate(-90deg);
+    transform-origin: 10px 10px;
+  }
+
+  .scroll-pill span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .scroll-pill-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0.35rem;
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 0.9rem;
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+
+  .scroll-pill-menu button {
+    appearance: none;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.85rem;
+    text-align: left;
+    padding: 0.5rem 0.65rem;
+    border-radius: 0.55rem;
+    cursor: pointer;
+  }
+
+  .scroll-pill-menu button.is-active {
+    background: var(--bar);
+  }
+
+  main {
+    padding-bottom: max(5.75rem, env(safe-area-inset-bottom, 0px) + 4.5rem);
   }
 }
