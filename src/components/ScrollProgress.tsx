@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import {
   jumpToSection,
   PAGE_SECTIONS,
-  readActiveSection,
+  subscribeActiveSection,
   type SectionId,
 } from "@/lib/sections";
+import { pressProps } from "@/lib/press";
 
 export function ScrollProgress() {
   const bar = useRef<HTMLDivElement>(null);
@@ -16,21 +17,32 @@ export function ScrollProgress() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    let tick = 0;
     function update() {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const t = max > 0 ? window.scrollY / max : 0;
       if (bar.current) bar.current.style.transform = `scaleX(${t})`;
       if (fill.current) fill.current.style.strokeDashoffset = String(1 - t);
-      const next = readActiveSection();
-      setActive((current) => (current === next ? current : next));
+    }
+    function onScroll() {
+      if (tick) return;
+      tick = window.requestAnimationFrame(() => {
+        tick = 0;
+        update();
+      });
     }
 
     update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    const stopSection = subscribeActiveSection((id) => {
+      setActive((current) => (current === id ? current : id));
+    });
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (tick) window.cancelAnimationFrame(tick);
+      stopSection();
     };
   }, []);
 
@@ -67,11 +79,11 @@ export function ScrollProgress() {
                 <button
                   type="button"
                   className={item.id === active ? "is-active" : undefined}
-                  onClick={() => {
+                  {...pressProps(() => {
                     jumpToSection(item.id);
                     setActive(item.id);
                     setOpen(false);
-                  }}
+                  })}
                 >
                   {item.label}
                 </button>
@@ -83,7 +95,7 @@ export function ScrollProgress() {
           type="button"
           className="scroll-pill"
           aria-expanded={open}
-          onClick={() => setOpen((value) => !value)}
+          {...pressProps(() => setOpen((value) => !value))}
         >
           <svg viewBox="0 0 20 20" aria-hidden="true">
             <circle cx="10" cy="10" r="7" className="scroll-pill-track" />

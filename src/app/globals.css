@@ -69,6 +69,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+button,
+a,
+summary,
+.track-table tbody tr,
+.scroll-pill {
+  touch-action: manipulation;
+}
+
 @media (display-mode: standalone) {
   html {
     overscroll-behavior: none;
@@ -247,10 +255,10 @@ p.lede {
   cursor: pointer;
   white-space: nowrap;
   transition:
-    margin 0.22s ease,
-    border-radius 0.22s ease,
-    background-color 0.22s ease,
-    color 0.22s ease;
+    margin 0.12s ease,
+    border-radius 0.12s ease,
+    background-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .gooey button:first-child {
@@ -417,7 +425,7 @@ section {
   background: var(--bar);
   border-radius: 999px;
   padding: 0.55rem 0.95rem 0.55rem 0.65rem;
-  transition: transform 0.2s ease, background-color 0.35s ease, color 0.35s ease;
+  transition: transform 0.2s ease, background-color 0.12s ease, color 0.12s ease;
 }
 
 .task-mark {
@@ -988,7 +996,7 @@ td .note {
   align-items: center;
   gap: 0.35rem;
   white-space: nowrap;
-  transition: transform 0.18s ease, opacity 0.22s ease, background-color 0.35s ease, color 0.35s ease;
+  transition: transform 0.12s ease, opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease;
 }
 
 .track-legend-btn.is-on {
@@ -1165,7 +1173,7 @@ td .note {
   padding: 0.45rem 0.9rem;
   border-radius: 999px;
   cursor: pointer;
-  transition: transform 0.18s ease, background-color 0.35s ease, color 0.35s ease, opacity 0.22s ease;
+  transition: transform 0.12s ease, background-color 0.12s ease, color 0.12s ease, opacity 0.12s ease;
 }
 
 .sight-actions button:disabled {
@@ -1218,6 +1226,14 @@ td .note {
   .track-legend-btn:hover,
   .sight-actions button:hover:not(:disabled) {
     transform: translateY(-1px);
+  }
+
+  .track-legend-btn:active,
+  .sight-actions button:active:not(:disabled),
+  .theme-switcher button:active,
+  .scroll-pill:active,
+  .scroll-pill-menu button:active {
+    transform: scale(0.98);
   }
 }
 

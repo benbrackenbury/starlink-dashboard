@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { GroundTrackMap } from "@/components/GroundTrackMap";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { GroundTrackMap, paintLive } from "@/components/GroundTrackMap";
 import {
-  formatLat,
-  formatLon,
   headingDeg,
   positionFromSatrec,
   samplePositions,
@@ -16,6 +14,7 @@ import {
   type ShellId,
   type TrackSegment,
 } from "@/lib/groundTracks";
+import { pressProps } from "@/lib/press";
 
 const SHELL_LABEL: Record<ShellId, string> = {
   "43": "43°",
@@ -24,18 +23,16 @@ const SHELL_LABEL: Record<ShellId, string> = {
   "97": "97°",
 };
 
-const LIVE_MS = 250;
+const LIVE_MS = 100;
 const TRAIL_MS = 15 * 60 * 1000;
 const TRAIL_STEPS = 18;
 const FUTURE_MS = 8 * 60 * 1000;
 const FUTURE_STEPS = 10;
 const HEADING_AHEAD_MS = 20_000;
 
-function formatClock(date: Date) {
-  return `${date.toISOString().slice(0, 19).replace("T", " ")} UTC`;
-}
-
 export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
+  const panel = useRef<HTMLDivElement>(null);
+  const liveRef = useRef<Record<number, LiveFix>>({});
   const [shells, setShells] = useState<Record<ShellId, boolean>>({
     "43": true,
     "53": true,
@@ -43,8 +40,6 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
     "97": true,
   });
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [now, setNow] = useState<Date | null>(null);
-  const [live, setLive] = useState<Record<number, LiveFix>>({});
   const [trails, setTrails] = useState<Record<number, TrackSegment[]>>({});
   const [futures, setFutures] = useState<Record<number, TrackSegment[]>>({});
 
@@ -57,12 +52,25 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
     [data.tracks],
   );
 
-  useEffect(() => {
+  const visibleTracks = useMemo(
+    () => data.tracks.filter((track) => shells[track.shell]),
+    [data.tracks, shells],
+  );
+  const selectedStillVisible = visibleTracks.some(
+    (track) => track.catalogId === selectedId,
+  );
+  const activeId = selectedStillVisible ? selectedId : null;
+
+  useLayoutEffect(() => {
     let frame = 0;
+    let timer = 0;
+    let cancelled = false;
+
     function tick() {
+      if (cancelled) return;
       const date = new Date();
       const nextLive: Record<number, LiveFix> = {};
-      const refreshPath = frame % 4 === 0;
+      const refreshPath = frame % 10 === 1;
       const nextTrails: Record<number, TrackSegment[]> = {};
       const nextFutures: Record<number, TrackSegment[]> = {};
 
@@ -84,42 +92,39 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
             TRAIL_MS,
             TRAIL_STEPS,
           );
-          const forward = samplePositions(
-            item.satrec,
-            date,
-            FUTURE_MS,
-            FUTURE_STEPS,
-          );
+          const forward = samplePositions(item.satrec, date, FUTURE_MS, FUTURE_STEPS);
           nextTrails[item.catalogId] = segmentsFromLonLat(behind);
           nextFutures[item.catalogId] = segmentsFromLonLat(forward);
         }
       }
 
-      setNow(date);
-      setLive(nextLive);
+      liveRef.current = nextLive;
+      if (panel.current) paintLive(panel.current, nextLive);
       if (refreshPath) {
         setTrails(nextTrails);
         setFutures(nextFutures);
       }
       frame += 1;
+      timer = window.setTimeout(tick, LIVE_MS);
     }
+
     tick();
-    const id = window.setInterval(tick, LIVE_MS);
-    return () => window.clearInterval(id);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [satrecs]);
 
-  const visibleTracks = data.tracks.filter((track) => shells[track.shell]);
-  const selectedStillVisible = visibleTracks.some(
-    (track) => track.catalogId === selectedId,
-  );
-  const activeId = selectedStillVisible ? selectedId : null;
+  useLayoutEffect(() => {
+    if (panel.current) paintLive(panel.current, liveRef.current);
+  }, [trails, futures, visibleTracks, activeId]);
 
   function toggleShell(shell: ShellId) {
     setShells((current) => ({ ...current, [shell]: !current[shell] }));
   }
 
   return (
-    <div className="track-panel">
+    <div className="track-panel" ref={panel}>
       <div className="track-toolbar">
         <div className="track-legend" role="group" aria-label="Inclination shells">
           {SHELLS.map((shell) => (
@@ -133,7 +138,7 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
               }
               data-shell={shell}
               aria-pressed={shells[shell]}
-              onClick={() => toggleShell(shell)}
+              {...pressProps(() => toggleShell(shell))}
             >
               <span className="track-swatch" data-shell={shell} />
               {SHELL_LABEL[shell]} shell
@@ -142,14 +147,13 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
         </div>
         <p className="track-clock">
           <span className="track-live-dot" aria-hidden="true" />
-          {now ? `Live · ${formatClock(now)}` : "Live positions starting…"}
+          <span data-live-clock>Live positions starting…</span>
         </p>
       </div>
 
       {visibleTracks.length > 0 ? (
         <GroundTrackMap
           tracks={visibleTracks}
-          live={live}
           trails={trails}
           futures={futures}
           selectedId={activeId}
@@ -173,7 +177,6 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
           </thead>
           <tbody>
             {visibleTracks.map((track) => {
-              const pos = live[track.catalogId];
               const selected = activeId === track.catalogId;
               return (
                 <tr
@@ -181,9 +184,9 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
                   className={selected ? "is-selected" : undefined}
                   tabIndex={0}
                   aria-selected={selected}
-                  onClick={() =>
-                    setSelectedId(selected ? null : track.catalogId)
-                  }
+                  {...pressProps(() =>
+                    setSelectedId(selected ? null : track.catalogId),
+                  )}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
@@ -200,17 +203,13 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
                     </div>
                   </td>
                   <td data-label="Position">
-                    <div className="cell-body">
-                      {pos
-                        ? `${formatLat(pos.lat)} ${formatLon(pos.lon)}`
-                        : "…"}
+                    <div className="cell-body" data-pos={track.catalogId}>
+                      …
                     </div>
                   </td>
                   <td data-label="Altitude">
-                    <div className="cell-body">
-                      {pos
-                        ? `${Math.round(pos.altKm).toLocaleString("en-GB")} km`
-                        : "…"}
+                    <div className="cell-body" data-alt={track.catalogId}>
+                      …
                     </div>
                   </td>
                   <td data-label="Incl.">

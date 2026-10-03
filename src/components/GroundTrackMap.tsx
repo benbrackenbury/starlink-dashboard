@@ -1,7 +1,10 @@
 "use client";
 
+import { memo } from "react";
 import { WORLD_LAND_PATH } from "@/data/worldLandPath";
 import {
+  formatLat,
+  formatLon,
   latToY,
   lonToX,
   type GroundTrack,
@@ -9,9 +12,39 @@ import {
   type ShellId,
   type TrackSegment,
 } from "@/lib/groundTracks";
+import { pressProps } from "@/lib/press";
 
 const MERIDIANS = [-180, -120, -60, 0, 60, 120, 180];
 const PARALLELS = [-60, -30, 0, 30, 60];
+
+const Backdrop = memo(function Backdrop() {
+  return (
+    <>
+      <rect className="track-map-sea" x="0" y="0" width="360" height="180" />
+      <path className="track-map-land" d={WORLD_LAND_PATH} />
+      {MERIDIANS.map((lon) => (
+        <line
+          key={`m${lon}`}
+          className="track-map-grid"
+          x1={lon + 180}
+          y1="0"
+          x2={lon + 180}
+          y2="180"
+        />
+      ))}
+      {PARALLELS.map((lat) => (
+        <line
+          key={`p${lat}`}
+          className="track-map-grid"
+          x1="0"
+          y1={90 - lat}
+          x2="360"
+          y2={90 - lat}
+        />
+      ))}
+    </>
+  );
+});
 
 function PathSet({
   tracks,
@@ -31,6 +64,10 @@ function PathSet({
   return tracks.map((track) => {
     const active = selectedId === track.catalogId;
     const dimmed = selectedId != null && !active;
+    const select = pressProps<SVGPolylineElement>((event) => {
+      event.stopPropagation();
+      onSelect(track.catalogId);
+    });
     return segmentsFor(track).map((segment, index) => (
       <polyline
         key={`${className}-${track.catalogId}-${index}`}
@@ -39,32 +76,69 @@ function PathSet({
         fill="none"
         points={segment.points}
         strokeWidth={strokeWidth(active)}
-        onClick={(event) => {
-          event.stopPropagation();
-          onSelect(track.catalogId);
-        }}
+        {...select}
       />
     ));
   });
 }
 
-export function GroundTrackMap({
+export function paintLive(root: HTMLElement, live: Record<number, LiveFix>) {
+  const clock = root.querySelector("[data-live-clock]");
+  if (clock) {
+    const date = new Date();
+    clock.textContent = `Live · ${date.toISOString().slice(0, 19).replace("T", " ")} UTC`;
+  }
+
+  root.querySelectorAll<SVGGElement>("[data-sat]").forEach((node) => {
+    const pos = live[Number(node.dataset.sat)];
+    if (!pos) return;
+    node.setAttribute(
+      "transform",
+      `translate(${lonToX(pos.lon)} ${latToY(pos.lat)}) rotate(${pos.headingDeg})`,
+    );
+  });
+
+  root.querySelectorAll<HTMLElement>("[data-pos]").forEach((node) => {
+    const pos = live[Number(node.dataset.pos)];
+    node.textContent = pos ? `${formatLat(pos.lat)} ${formatLon(pos.lon)}` : "…";
+  });
+
+  root.querySelectorAll<HTMLElement>("[data-alt]").forEach((node) => {
+    const pos = live[Number(node.dataset.alt)];
+    node.textContent = pos
+      ? `${Math.round(pos.altKm).toLocaleString("en-GB")} km`
+      : "…";
+  });
+
+  const label = root.querySelector<SVGTextElement>("[data-sat-label]");
+  if (!label) return;
+  const pos = live[Number(label.dataset.satLabel)];
+  if (!pos) return;
+  label.setAttribute(
+    "x",
+    String(Math.min(328, Math.max(8, lonToX(pos.lon) + 5))),
+  );
+  label.setAttribute(
+    "y",
+    String(Math.min(174, Math.max(8, latToY(pos.lat) - 4))),
+  );
+}
+
+export const GroundTrackMap = memo(function GroundTrackMap({
   tracks,
-  live,
   trails,
   futures,
   selectedId,
   onSelect,
 }: {
   tracks: GroundTrack[];
-  live: Record<number, LiveFix>;
   trails: Record<number, TrackSegment[]>;
   futures: Record<number, TrackSegment[]>;
   selectedId: number | null;
   onSelect: (catalogId: number | null) => void;
 }) {
   const selected = tracks.find((track) => track.catalogId === selectedId);
-  const selectedPos = selectedId != null ? live[selectedId] : undefined;
+  const clear = pressProps<SVGSVGElement>(() => onSelect(null));
 
   return (
     <figure className="track-map">
@@ -72,30 +146,9 @@ export function GroundTrackMap({
         viewBox="0 0 360 180"
         role="img"
         aria-label="Live equirectangular world map of Starlink ground tracks with current SGP4 motion"
-        onClick={() => onSelect(null)}
+        {...clear}
       >
-        <rect className="track-map-sea" x="0" y="0" width="360" height="180" />
-        <path className="track-map-land" d={WORLD_LAND_PATH} />
-        {MERIDIANS.map((lon) => (
-          <line
-            key={`m${lon}`}
-            className="track-map-grid"
-            x1={lon + 180}
-            y1="0"
-            x2={lon + 180}
-            y2="180"
-          />
-        ))}
-        {PARALLELS.map((lat) => (
-          <line
-            key={`p${lat}`}
-            className="track-map-grid"
-            x1="0"
-            y1={90 - lat}
-            x2="360"
-            y2={90 - lat}
-          />
-        ))}
+        <Backdrop />
         <PathSet
           tracks={tracks}
           segmentsFor={(track) => track.segments}
@@ -121,24 +174,22 @@ export function GroundTrackMap({
           strokeWidth={(active) => (active ? 1.4 : 0.95)}
         />
         {tracks.map((track) => {
-          const pos = live[track.catalogId];
-          if (!pos) return null;
           const active = selectedId === track.catalogId;
           const dimmed = selectedId != null && !active;
-          const x = lonToX(pos.lon);
-          const y = latToY(pos.lat);
+          const pick = pressProps<SVGGElement>((event) => {
+            event.stopPropagation();
+            onSelect(track.catalogId);
+          });
           return (
             <g
               key={`sat-${track.catalogId}`}
               className={
                 dimmed ? "track-map-craft is-dim" : "track-map-craft is-on"
               }
+              data-sat={track.catalogId}
               data-shell={track.shell}
-              transform={`translate(${x} ${y}) rotate(${pos.headingDeg})`}
-              onClick={(event) => {
-                event.stopPropagation();
-                onSelect(track.catalogId);
-              }}
+              transform="translate(-20 -20)"
+              {...pick}
             >
               <title>
                 {track.name} · {track.inclinationDeg.toFixed(0)}° shell
@@ -157,11 +208,12 @@ export function GroundTrackMap({
             </g>
           );
         })}
-        {selected && selectedPos ? (
+        {selected ? (
           <text
             className="track-map-label"
-            x={Math.min(328, Math.max(8, lonToX(selectedPos.lon) + 5))}
-            y={Math.min(174, Math.max(8, latToY(selectedPos.lat) - 4))}
+            data-sat-label={selected.catalogId}
+            x="8"
+            y="8"
           >
             {selected.name}
           </text>
@@ -175,4 +227,4 @@ export function GroundTrackMap({
       </figcaption>
     </figure>
   );
-}
+});

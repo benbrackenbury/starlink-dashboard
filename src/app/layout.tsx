@@ -7,6 +7,8 @@ const sans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
   variable: "--font-sans",
 });
 
@@ -14,6 +16,8 @@ const mono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
   variable: "--font-mono",
 });
 

@@ -4,27 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import {
   jumpToSection,
   PAGE_SECTIONS,
-  readActiveSection,
+  subscribeActiveSection,
   type SectionId,
 } from "@/lib/sections";
+import { pressProps } from "@/lib/press";
 
 export function ContentsNav() {
   const [active, setActive] = useState<SectionId>(PAGE_SECTIONS[0].id);
   const list = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    function update() {
-      setActive(readActiveSection());
-    }
-
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, []);
+  useEffect(
+    () =>
+      subscribeActiveSection((id) => {
+        setActive((current) => (current === id ? current : id));
+      }),
+    [],
+  );
 
   function proximity(event: React.PointerEvent<HTMLElement>) {
     const links = list.current?.querySelectorAll<HTMLElement>("a");
@@ -42,11 +37,9 @@ export function ContentsNav() {
     });
   }
 
-  function go(event: React.MouseEvent<HTMLAnchorElement>, id: SectionId) {
-    event.preventDefault();
+  function go(id: SectionId) {
     jumpToSection(id);
     setActive(id);
-    event.currentTarget.blur();
   }
 
   return (
@@ -62,7 +55,11 @@ export function ContentsNav() {
           key={item.id}
           href={`#${item.id}`}
           className={active === item.id ? "is-active" : undefined}
-          onClick={(event) => go(event, item.id)}
+          {...pressProps<HTMLAnchorElement>((event) => {
+            event.preventDefault();
+            go(item.id);
+            event.currentTarget.blur();
+          })}
         >
           <span className="contents-mark" aria-hidden="true" />
           <span className="contents-label">{item.label}</span>
