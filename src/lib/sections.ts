@@ -1,11 +1,14 @@
 export const PAGE_SECTIONS = [
   { id: "orbit", label: "Satellites in orbit" },
   { id: "version", label: "By version" },
+  { id: "shells", label: "Inclination shells" },
   { id: "tracks", label: "Ground tracks" },
   { id: "trains", label: "Visible trains" },
   { id: "launches", label: "Launch history" },
   { id: "finance", label: "Revenue and profit" },
+  { id: "customers", label: "Customers" },
   { id: "coverage", label: "Where it operates" },
+  { id: "d2c", label: "Direct to Cell" },
 ] as const;
 
 export type SectionId = (typeof PAGE_SECTIONS)[number]["id"];

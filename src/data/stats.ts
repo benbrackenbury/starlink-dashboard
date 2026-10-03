@@ -134,3 +134,70 @@ export const coverage = {
     published: "21 May 2026",
   } satisfies Source,
 };
+
+export const shells = {
+  rows: [
+    {
+      id: "53",
+      name: "53°",
+      altitude: "~550 km",
+      note: "Main mid-latitude shells (53.0° and 53.2°).",
+      inOrbit: 7812,
+    },
+    {
+      id: "43",
+      name: "43°",
+      altitude: "~560 km",
+      note: "Lower-inclination planes for denser coverage at temperate latitudes.",
+      inOrbit: 1496,
+    },
+    {
+      id: "70",
+      name: "70°",
+      altitude: "~530 km",
+      note: "High-latitude shell.",
+      inOrbit: 1328,
+    },
+    {
+      id: "97",
+      name: "97°",
+      altitude: "~560 km",
+      note: "Near-polar sun-synchronous planes.",
+      inOrbit: 483,
+    },
+  ],
+  source: {
+    label: "Jonathan McDowell, Starlink launch statistics",
+    url: "https://planet4589.org/space/con/star/stats.html",
+    published: "31 August 2026 (inclination bins grouped to the four shells used on the map)",
+  } satisfies Source,
+};
+
+export const customers = {
+  total: 7_600_000,
+  label: "Customers at year-end 2025",
+  caveat:
+    "Prospectus figure for Starlink customers, as reported by CNBC. It is a 2025 year-end count, not a 2026 run-rate.",
+  source: {
+    label: "CNBC, reporting SpaceX IPO prospectus",
+    url: "https://www.cnbc.com/2026/05/21/spacex-starlink-growth-profit-nasdaq-ipo.html",
+    published: "21 May 2026",
+  } satisfies Source,
+};
+
+export const directToCell = {
+  headline: "Text service on partner networks",
+  note: "V2 Mini satellites carry a Direct to Cell payload. SpaceX describes current service as text, with voice and data still rolling out by market.",
+  partners: [
+    { name: "T-Mobile", market: "United States", status: "Live (text)" },
+    { name: "Rogers", market: "Canada", status: "Live (text)" },
+    { name: "Optus", market: "Australia", status: "Live (text)" },
+    { name: "One NZ", market: "New Zealand", status: "Live (text)" },
+    { name: "KDDI", market: "Japan", status: "Announced" },
+  ],
+  source: {
+    label: "SpaceX, Direct to Cell",
+    url: "https://www.starlink.com/business/direct-to-cell",
+    published: "Fetched 1 October 2026",
+  } satisfies Source,
+};

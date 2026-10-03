@@ -7,8 +7,11 @@ import { TrainSightingsPanel } from "@/components/TrainSightingsPanel";
 import {
   constellation,
   coverage,
+  customers,
+  directToCell,
   finance,
   launches,
+  shells,
 } from "@/data/stats";
 import { getGroundTracks } from "@/lib/groundTracks";
 
@@ -160,6 +163,41 @@ export default function HomePage() {
           <SourceLine {...constellation.sourceV3} />
         </section>
 
+        <section id="shells">
+          <h2>Inclination shells</h2>
+          <p className="sub">
+            Same four inclination bins as the ground-track colours. Counts are
+            McDowell’s planes grouped to those bins; they sum to the in-orbit
+            total above.
+          </p>
+          <div className="shell-stack" aria-hidden="true">
+            {shells.rows.map((row) => (
+              <span
+                key={row.id}
+                data-shell={row.id}
+                style={{ flexGrow: row.inOrbit, flexBasis: 0 }}
+              />
+            ))}
+          </div>
+          <ul className="task-list version-list">
+            {shells.rows.map((row) => (
+              <li key={row.id} className="task-row">
+                <span className="track-swatch" data-shell={row.id} />
+                <div className="task-copy">
+                  <p className="task-title">
+                    {row.name} · {row.altitude}
+                  </p>
+                  <p className="task-meta">{row.note}</p>
+                </div>
+                <div className="task-side">
+                  <span>{row.inOrbit.toLocaleString("en-GB")} in orbit</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <SourceLine {...shells.source} />
+        </section>
+
         <section id="tracks">
           <h2>Ground tracks</h2>
           <p className="sub">{groundTracks.subsetNote}</p>
@@ -222,6 +260,18 @@ export default function HomePage() {
             <SourceLine {...finance.source} />
           </section>
 
+          <section id="customers">
+            <h2>Customers</h2>
+            <div className="figure">
+              <Odometer value={customers.total} />
+            </div>
+            <p className="sub">{customers.label}.</p>
+            <p className="note">{customers.caveat}</p>
+            <SourceLine {...customers.source} />
+          </section>
+        </div>
+
+        <div className="grid">
           <section id="coverage">
             <h2>Where it operates</h2>
             <div className="figure figure-phrase">{coverage.official}</div>
@@ -233,6 +283,27 @@ export default function HomePage() {
             </p>
             <SourceLine {...coverage.sourceOfficial} />
             <SourceLine {...coverage.sourceProspectus} />
+          </section>
+
+          <section id="d2c">
+            <h2>Direct to Cell</h2>
+            <div className="figure figure-phrase">{directToCell.headline}</div>
+            <p className="sub">{directToCell.note}</p>
+            <ul className="task-list version-list">
+              {directToCell.partners.map((row) => (
+                <li key={row.name} className="task-row">
+                  <span className="task-mark is-dot" aria-hidden="true" />
+                  <div className="task-copy">
+                    <p className="task-title">{row.name}</p>
+                    <p className="task-meta">{row.market}</p>
+                  </div>
+                  <div className="task-side">
+                    <span className="task-status">{row.status}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <SourceLine {...directToCell.source} />
           </section>
         </div>
         <p className="attrib">
