@@ -2,13 +2,14 @@ import { unstable_cache } from "next/cache";
 import { findTrainSightings } from "@/lib/sightings";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const sightingsFor = unstable_cache(
-  async (lat: string, lon: string) =>
+  async (lat: string, lon: string, _minute: string) =>
     findTrainSightings(Number(lat), Number(lon)),
   ["train-sightings-v1"],
-  { revalidate: 120 },
+  { revalidate: 60 },
 );
 
 export async function GET(request: Request) {
@@ -16,10 +17,11 @@ export async function GET(request: Request) {
   const lat = Number(url.searchParams.get("lat"));
   const lon = Number(url.searchParams.get("lon"));
   try {
-    const result = await sightingsFor(lat.toFixed(2), lon.toFixed(2));
+    const minute = String(Math.floor(Date.now() / 60_000));
+    const result = await sightingsFor(lat.toFixed(2), lon.toFixed(2), minute);
     return NextResponse.json(result, {
       headers: {
-        "Cache-Control": "private, max-age=30, stale-while-revalidate=90",
+        "Cache-Control": "private, no-store",
       },
     });
   } catch (error) {
