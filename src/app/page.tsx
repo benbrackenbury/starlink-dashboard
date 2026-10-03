@@ -220,9 +220,13 @@ export default function HomePage() {
         </section>
       </div>
       <p className="attrib">
-        Ben Brackenbury ·{" "}
-        <a href="https://x.com/benbrackenbury" rel="noreferrer">
-          @benbrackenbury
+        Created by{" "}
+        <a
+          href="https://x.com/benbrackenbury"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Ben Brackenbury
         </a>
       </p>
     </main>
