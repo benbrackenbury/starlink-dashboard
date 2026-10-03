@@ -38,7 +38,7 @@ export function ThemeSwitcher() {
   }
 
   return (
-    <div className="theme-switcher" role="group" aria-label="Colour theme">
+    <div className="gooey theme-switcher" role="group" aria-label="Colour theme">
       {OPTIONS.map((option) => (
         <button
           key={option.value}
