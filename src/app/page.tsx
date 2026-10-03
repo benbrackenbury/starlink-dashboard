@@ -1,8 +1,9 @@
-import nextDynamic from "next/dynamic";
 import { ContentsNav } from "@/components/ContentsNav";
+import { GroundTrackPanel } from "@/components/GroundTrackPanel";
 import { Odometer } from "@/components/Odometer";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { TrainSightingsPanel } from "@/components/TrainSightingsPanel";
 import {
   constellation,
   coverage,
@@ -15,16 +16,6 @@ import {
 import { getGroundTracks } from "@/lib/groundTracks";
 
 export const dynamic = "force-static";
-
-const GroundTrackPanel = nextDynamic(() =>
-  import("@/components/GroundTrackPanel").then((mod) => mod.GroundTrackPanel),
-);
-
-const TrainSightingsPanel = nextDynamic(() =>
-  import("@/components/TrainSightingsPanel").then(
-    (mod) => mod.TrainSightingsPanel,
-  ),
-);
 
 function SourceLine({
   label,
