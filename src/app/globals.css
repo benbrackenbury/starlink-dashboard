@@ -206,10 +206,14 @@ th {
 
 td.num,
 th.num,
-table td:is(:nth-child(2), :nth-child(3), :nth-child(4), :nth-child(5), :nth-child(6)),
+table td:is(:nth-child(2), :nth-child(3), :nth-child(4), :nth-child(5)),
 .track-table td:nth-child(n + 2) {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+table td[data-label="Launch"] {
+  white-space: normal;
 }
 
 /* First column can wrap; keep later columns on one line on desktop. */

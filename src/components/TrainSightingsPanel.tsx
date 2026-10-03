@@ -195,7 +195,10 @@ export function TrainSightingsPanel() {
                         </div>
                       </td>
                       <td data-label="Launch">
-                        <div className="cell-body">{train.launchId}</div>
+                        <div className="cell-body">{train.launchName}</div>
+                        {train.launchDate ? (
+                          <div className="note">{train.launchDate}</div>
+                        ) : null}
                       </td>
                     </tr>
                   ))}

@@ -14,9 +14,15 @@ import {
 } from "@/lib/sgp4";
 
 const AU_KM = 149_597_870.7;
-const GP_URL =
+const GP_URLS = [
+  "https://raw.githubusercontent.com/satvisorcom/satvisor-data/master/celestrak/json/last-30-days.json",
+  "https://celestrak.org/NORAD/elements/gp.php?GROUP=last-30-days&FORMAT=JSON",
+];
+const GP_SOURCE_URL =
   "https://celestrak.org/NORAD/elements/gp.php?GROUP=last-30-days&FORMAT=JSON";
-const GP_TTL_MS = 60 * 60 * 1000;
+const LL_URL =
+  "https://ll.thespacedevs.com/2.2.0/launch/?search=Starlink&limit=25&ordering=-net";
+const GP_TTL_MS = 2 * 60 * 60 * 1000;
 const HORIZON_MS = 48 * 60 * 60 * 1000;
 const SUN_STEP_MS = 5 * 60 * 1000;
 const SAT_STEP_MS = 30_000;
@@ -59,6 +65,8 @@ export type SatPass = {
 
 export type TrainSighting = {
   launchId: string;
+  launchName: string;
+  launchDate: string;
   satellites: number;
   firstName: string;
   lastName: string;
@@ -86,8 +94,15 @@ export type SightingResult = {
   trains: TrainSighting[];
 };
 
-type GpCache = { at: number; fetchedUtc: string; objects: OMMJsonObject[] };
+type LaunchLabel = { name: string; date: string };
+type GpCache = {
+  at: number;
+  fetchedUtc: string;
+  objects: OMMJsonObject[];
+  labels: Map<string, LaunchLabel>;
+};
 let gpCache: GpCache | null = null;
+let missionCache: { at: number; byDate: Map<string, string> } | null = null;
 
 export function launchIdFromObjectId(objectId: string) {
   const match = objectId.match(/^(\d{4}-\d{3})/);
@@ -141,6 +156,8 @@ export function clusterPasses(passes: SatPass[]): TrainSighting[] {
       const endMs = byEnd[byEnd.length - 1].endMs;
       trains.push({
         launchId,
+        launchName: launchId,
+        launchDate: "",
         satellites: new Set(window.map((pass) => pass.catalogId)).size,
         firstName: byStart[0].name,
         lastName: byEnd[byEnd.length - 1].name,
@@ -285,17 +302,29 @@ function passesForSat(
 
 async function loadStarlinkGp(): Promise<GpCache> {
   if (gpCache && Date.now() - gpCache.at < GP_TTL_MS) return gpCache;
-  const res = await fetch(GP_URL, {
-    headers: {
-      "User-Agent": "starlink-dashboard/0.1 (train sightings)",
-      Accept: "application/json",
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    throw new Error(`CelesTrak GP request failed (${res.status})`);
+  let objects: OMMJsonObject[] | null = null;
+  for (const url of GP_URLS) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": "starlink-dashboard/0.1 (train sightings)",
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      });
+      if (!res.ok) continue;
+      const body = (await res.json()) as OMMJsonObject[];
+      if (Array.isArray(body) && body.length > 0) {
+        objects = body;
+        break;
+      }
+    } catch {
+      /* try the next source */
+    }
   }
-  const objects = (await res.json()) as OMMJsonObject[];
+  if (!objects) {
+    throw new Error("Could not load recent Starlink orbits. Try again in a few minutes.");
+  }
   gpCache = {
     at: Date.now(),
     fetchedUtc: new Date().toISOString(),
@@ -303,8 +332,96 @@ async function loadStarlinkGp(): Promise<GpCache> {
       const name = String(omm.OBJECT_NAME).toUpperCase();
       return name.startsWith("STARLINK") && !name.includes("DEB");
     }),
+    labels: new Map(),
   };
   return gpCache;
+}
+
+function formatLaunchDate(isoDate: string) {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  if (!year || !month || !day) return isoDate;
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+async function loadMissionNamesByDate() {
+  if (missionCache && Date.now() - missionCache.at < GP_TTL_MS) {
+    return missionCache.byDate;
+  }
+  const res = await fetch(LL_URL, {
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    missionCache = { at: Date.now(), byDate: new Map() };
+    return missionCache.byDate;
+  }
+  const body = (await res.json()) as {
+    results?: {
+      net?: string;
+      name?: string;
+      mission?: { name?: string };
+    }[];
+  };
+  const byDate = new Map<string, string>();
+  for (const row of body.results ?? []) {
+    const date = row.net?.slice(0, 10);
+    if (!date || byDate.has(date)) continue;
+    const pipe = row.name?.split("|").pop()?.trim();
+    byDate.set(date, row.mission?.name || pipe || row.name || date);
+  }
+  missionCache = { at: Date.now(), byDate };
+  return byDate;
+}
+
+async function loadLaunchDatesById() {
+  const res = await fetch(
+    "https://celestrak.org/satcat/records.php?GROUP=last-30-days&FORMAT=JSON",
+    {
+      headers: {
+        "User-Agent": "starlink-dashboard/0.1 (train sightings)",
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) return new Map<string, string>();
+  const records = (await res.json()) as {
+    OBJECT_ID?: string;
+    OBJECT_NAME?: string;
+    LAUNCH_DATE?: string;
+  }[];
+  const byId = new Map<string, string>();
+  for (const row of records) {
+    const name = String(row.OBJECT_NAME ?? "").toUpperCase();
+    if (!name.startsWith("STARLINK") || name.includes("DEB")) continue;
+    const id = launchIdFromObjectId(String(row.OBJECT_ID ?? ""));
+    const date = row.LAUNCH_DATE;
+    if (id && date && !byId.has(id)) byId.set(id, date);
+  }
+  return byId;
+}
+
+async function labelLaunches(ids: Iterable<string>) {
+  const needed = [...ids].filter((id) => !gpCache?.labels.has(id));
+  if (needed.length === 0) return gpCache?.labels ?? new Map();
+  const [byDate, dates] = await Promise.all([
+    loadMissionNamesByDate(),
+    loadLaunchDatesById(),
+  ]);
+  for (const id of needed) {
+    const date = dates.get(id);
+    if (!date) continue;
+    gpCache?.labels.set(id, {
+      name: byDate.get(date) ?? `Starlink launch ${formatLaunchDate(date)}`,
+      date: formatLaunchDate(date),
+    });
+  }
+  return gpCache?.labels ?? new Map();
 }
 
 export async function findTrainSightings(
@@ -342,23 +459,30 @@ export async function findTrainSightings(
     }
   }
 
-  const trains = clusterPasses(passes).filter(
-    (train) => train.maxElevationDeg >= 20 && train.satellites >= 3,
-  );
+  const labels = await labelLaunches(launches);
+  const trains = clusterPasses(passes)
+    .filter((train) => train.maxElevationDeg >= 20 && train.satellites >= 3)
+    .map((train) => {
+      const label = labels.get(train.launchId);
+      return label
+        ? { ...train, launchName: label.name, launchDate: label.date }
+        : train;
+    });
   const note =
     nights.length === 0
       ? "The Sun stays too high for optical sightings here in the next 48 hours."
       : trains.length === 0
         ? "No visible trains from last-30-day launches in the next 48 hours. Need a dark sky and at least three sunlit satellites 20° up."
-        : "Trains are last-30-day launches still flying as a string. Visible means the sky is dark, the satellites are sunlit, and at least three reach 20°."
+        : "Trains are last-30-day launches still flying as a string. Visible means the sky is dark, the satellites are sunlit, and at least three reach 20°.";
 
   return {
     lat,
     lon,
     horizonHours: 48,
     fetchedUtc: gp.fetchedUtc,
-    sourceLabel: "CelesTrak GP (OMM JSON), last 30 days’ launches",
-    sourceUrl: GP_URL,
+    sourceLabel:
+      "CelesTrak GP (last 30 days) and Launch Library 2 for mission names",
+    sourceUrl: GP_SOURCE_URL,
     satelliteCount: gp.objects.length,
     launches: launches.size,
     note,

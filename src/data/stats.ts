@@ -4,8 +4,6 @@ export type Source = {
   published: string;
 };
 
-export const pageFetched = "1 October 2026";
-
 export const constellation = {
   totalInOrbit: 11119,
   totalWorking: 11078,

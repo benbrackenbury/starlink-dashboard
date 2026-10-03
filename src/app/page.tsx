@@ -6,9 +6,10 @@ import {
   coverage,
   finance,
   launches,
-  pageFetched,
 } from "@/data/stats";
 import { getGroundTracks } from "@/lib/groundTracks";
+
+export const dynamic = "force-dynamic";
 
 function SourceLine({
   label,
@@ -56,7 +57,14 @@ export default function HomePage() {
         <div>
           <h1>Starlink stats</h1>
           <p className="lede">
-            Public figures only. Estimates are labelled. Compiled {pageFetched}.
+            Public figures only. Estimates are labelled. Compiled{" "}
+            {new Date().toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+              timeZone: "Europe/London",
+            })}
+            .
           </p>
         </div>
         <ThemeSwitcher />
