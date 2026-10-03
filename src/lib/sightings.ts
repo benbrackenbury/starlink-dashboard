@@ -310,7 +310,7 @@ async function loadStarlinkGp(): Promise<GpCache> {
           "User-Agent": "starlink-dashboard/0.1 (train sightings)",
           Accept: "application/json",
         },
-        cache: "no-store",
+        next: { revalidate: 7200 },
       });
       if (!res.ok) continue;
       const body = (await res.json()) as OMMJsonObject[];
@@ -354,7 +354,7 @@ async function loadMissionNamesByDate() {
   }
   const res = await fetch(LL_URL, {
     headers: { Accept: "application/json" },
-    cache: "no-store",
+    next: { revalidate: 7200 },
   });
   if (!res.ok) {
     missionCache = { at: Date.now(), byDate: new Map() };
@@ -386,7 +386,7 @@ async function loadLaunchDatesById() {
         "User-Agent": "starlink-dashboard/0.1 (train sightings)",
         Accept: "application/json",
       },
-      cache: "no-store",
+      next: { revalidate: 7200 },
     },
   );
   if (!res.ok) return new Map<string, string>();

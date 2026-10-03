@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SightingResult } from "@/lib/sightings";
+import { pressProps } from "@/lib/press";
 
 const STORAGE_KEY = "starlink-train-location";
 
@@ -16,7 +17,23 @@ function formatWhen(iso: string) {
   });
 }
 
+function readStoredCoords() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return null;
+    const parsed = JSON.parse(stored) as { lat?: number; lon?: number };
+    if (typeof parsed.lat === "number" && typeof parsed.lon === "number") {
+      return { lat: parsed.lat, lon: parsed.lon };
+    }
+  } catch {
+    /* ignore bad localStorage */
+  }
+  return null;
+}
+
 export function TrainSightingsPanel() {
+  const form = useRef<HTMLFormElement>(null);
+  const inflight = useRef(false);
   const [lat, setLat] = useState("");
   const [lon, setLon] = useState("");
   const [geoError, setGeoError] = useState<string | null>(null);
@@ -25,18 +42,51 @@ export function TrainSightingsPanel() {
   const [locating, setLocating] = useState(false);
   const [result, setResult] = useState<SightingResult | null>(null);
 
-  useEffect(() => {
+  async function runLookup(nextLat: number, nextLon: number) {
+    if (inflight.current) return;
+    inflight.current = true;
+    setError(null);
+    setLoading(true);
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) return;
-      const parsed = JSON.parse(stored) as { lat?: number; lon?: number };
-      if (typeof parsed.lat === "number" && typeof parsed.lon === "number") {
-        setLat(String(parsed.lat));
-        setLon(String(parsed.lon));
+      const res = await fetch(
+        `/api/trains?lat=${encodeURIComponent(nextLat)}&lon=${encodeURIComponent(nextLon)}`,
+      );
+      const body = (await res.json()) as SightingResult & { error?: string };
+      if (!res.ok) {
+        setResult(null);
+        setError(body.error ?? "Lookup failed.");
+        return;
       }
+      saveCoords(nextLat, nextLon);
+      setResult(body);
     } catch {
-      /* ignore bad localStorage */
+      setResult(null);
+      setError("Lookup failed.");
+    } finally {
+      inflight.current = false;
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    const stored = readStoredCoords();
+    if (stored) {
+      setLat(String(stored.lat));
+      setLon(String(stored.lon));
+    }
+
+    const node = form.current;
+    if (!node || !stored) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        void runLookup(stored.lat, stored.lon);
+      },
+      { rootMargin: "800px" },
+    );
+    io.observe(node);
+    return () => io.disconnect();
   }, []);
 
   function saveCoords(nextLat: number, nextLon: number) {
@@ -57,11 +107,11 @@ export function TrainSightingsPanel() {
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        saveCoords(
-          Number(pos.coords.latitude.toFixed(4)),
-          Number(pos.coords.longitude.toFixed(4)),
-        );
+        const nextLat = Number(pos.coords.latitude.toFixed(4));
+        const nextLon = Number(pos.coords.longitude.toFixed(4));
+        saveCoords(nextLat, nextLon);
         setLocating(false);
+        void runLookup(nextLat, nextLon);
       },
       (err) => {
         setLocating(false);
@@ -75,35 +125,22 @@ export function TrainSightingsPanel() {
     );
   }
 
-  async function lookup(event: React.FormEvent) {
-    event.preventDefault();
+  function submitForm() {
     const nextLat = Number(lat);
     const nextLon = Number(lon);
-    setError(null);
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `/api/trains?lat=${encodeURIComponent(nextLat)}&lon=${encodeURIComponent(nextLon)}`,
-      );
-      const body = (await res.json()) as SightingResult & { error?: string };
-      if (!res.ok) {
-        setResult(null);
-        setError(body.error ?? "Lookup failed.");
-        return;
-      }
-      saveCoords(nextLat, nextLon);
-      setResult(body);
-    } catch {
-      setResult(null);
-      setError("Lookup failed.");
-    } finally {
-      setLoading(false);
-    }
+    void runLookup(nextLat, nextLon);
   }
 
   return (
     <div>
-      <form className="sight-form" onSubmit={lookup}>
+      <form
+        ref={form}
+        className="sight-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitForm();
+        }}
+      >
         <label>
           Latitude
           <input
@@ -131,10 +168,23 @@ export function TrainSightingsPanel() {
           />
         </label>
         <div className="sight-actions">
-          <button type="button" onClick={useDeviceLocation} disabled={locating}>
+          <button
+            type="button"
+            disabled={locating}
+            {...pressProps(() => {
+              if (!locating) useDeviceLocation();
+            })}
+          >
             {locating ? "Locating…" : "Use my location"}
           </button>
-          <button type="submit" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            {...pressProps((event) => {
+              event.preventDefault();
+              if (!loading) form.current?.requestSubmit();
+            })}
+          >
             {loading ? "Computing…" : "Find trains"}
           </button>
         </div>

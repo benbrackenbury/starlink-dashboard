@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { pressProps } from "@/lib/press";
 import {
   applyTheme,
   readStoredTheme,
@@ -106,7 +107,7 @@ export function ThemeSwitcher() {
             aria-label={option.label}
             aria-pressed={pref === option.value}
             title={option.label}
-            onClick={() => choose(option.value)}
+            {...pressProps(() => choose(option.value))}
           >
             <Icon />
           </button>

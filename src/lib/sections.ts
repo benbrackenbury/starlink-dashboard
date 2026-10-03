@@ -23,10 +23,56 @@ export function readActiveSection() {
   return current;
 }
 
+type SectionListener = (id: SectionId) => void;
+
+const sectionListeners = new Set<SectionListener>();
+let scrollBound = false;
+let scrollTick = 0;
+
+function emitActiveSection() {
+  const id = readActiveSection();
+  for (const listener of sectionListeners) listener(id);
+}
+
+function onViewportChange() {
+  if (scrollTick) return;
+  scrollTick = window.requestAnimationFrame(() => {
+    scrollTick = 0;
+    emitActiveSection();
+  });
+}
+
+function bindSectionListeners() {
+  if (scrollBound) return;
+  scrollBound = true;
+  window.addEventListener("scroll", onViewportChange, { passive: true });
+  window.addEventListener("resize", onViewportChange);
+}
+
+function unbindSectionListeners() {
+  if (!scrollBound) return;
+  scrollBound = false;
+  window.removeEventListener("scroll", onViewportChange);
+  window.removeEventListener("resize", onViewportChange);
+  if (scrollTick) {
+    window.cancelAnimationFrame(scrollTick);
+    scrollTick = 0;
+  }
+}
+
+export function subscribeActiveSection(listener: SectionListener) {
+  sectionListeners.add(listener);
+  listener(readActiveSection());
+  bindSectionListeners();
+  return () => {
+    sectionListeners.delete(listener);
+    if (sectionListeners.size === 0) unbindSectionListeners();
+  };
+}
+
 export function jumpToSection(id: string) {
   const node = document.getElementById(id);
   if (!node) return;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  node.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  node.scrollIntoView({ behavior: "auto", block: "start" });
   history.replaceState(null, "", `#${id}`);
 }
