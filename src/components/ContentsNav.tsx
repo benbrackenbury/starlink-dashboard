@@ -56,7 +56,6 @@ export function ContentsNav() {
           href={`#${item.id}`}
           className={active === item.id ? "is-active" : undefined}
           {...pressProps<HTMLAnchorElement>((event) => {
-            event.preventDefault();
             go(item.id);
             event.currentTarget.blur();
           })}
