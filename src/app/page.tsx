@@ -105,14 +105,20 @@ export default function HomePage() {
             {constellation.totalWorking.toLocaleString("en-GB")} working
           </p>
           <div className="tick-ruler" aria-hidden="true">
-            {shareTicks.map((group) =>
-              Array.from({ length: group.n }, (_, i) => (
+            {shareTicks.flatMap((group, gi) => {
+              const offset = shareTicks
+                .slice(0, gi)
+                .reduce((n, g) => n + g.n, 0);
+              return Array.from({ length: group.n }, (_, i) => (
                 <span
                   key={`${group.id}-${i}`}
                   className={`tick tick-${group.id}`}
+                  style={{
+                    animationDelay: `${120 + (offset + i) * 16}ms`,
+                  }}
                 />
-              )),
-            )}
+              ));
+            })}
           </div>
           <p className="tick-legend">
             <span>
