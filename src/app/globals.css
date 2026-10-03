@@ -1052,6 +1052,42 @@ td .note {
   background: var(--shell-97);
 }
 
+.shell-stack {
+  display: flex;
+  height: 10px;
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 0 0 1rem;
+  background: var(--bar);
+}
+
+.shell-stack span {
+  min-width: 2px;
+  height: 100%;
+}
+
+.shell-stack span[data-shell="43"] {
+  background: var(--shell-43);
+}
+
+.shell-stack span[data-shell="53"] {
+  background: var(--shell-53);
+}
+
+.shell-stack span[data-shell="70"] {
+  background: var(--shell-70);
+}
+
+.shell-stack span[data-shell="97"] {
+  background: var(--shell-97);
+}
+
+#shells .track-swatch {
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-top: 0.28rem;
+}
+
 .track-name {
   display: inline-flex;
   align-items: center;
