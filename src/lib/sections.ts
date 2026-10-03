@@ -8,9 +8,11 @@ export const PAGE_SECTIONS = [
   { id: "coverage", label: "Where it operates" },
 ] as const;
 
+export type SectionId = (typeof PAGE_SECTIONS)[number]["id"];
+
 export function readActiveSection() {
   const line = window.innerHeight * 0.22;
-  let current = PAGE_SECTIONS[0].id;
+  let current: SectionId = PAGE_SECTIONS[0].id;
   for (const item of PAGE_SECTIONS) {
     const node = document.getElementById(item.id);
     if (node && node.getBoundingClientRect().top <= line) current = item.id;
