@@ -11,10 +11,12 @@ export function pressProps<T extends Element>(
       if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
         return;
       }
+      event.currentTarget.setAttribute("data-press-armed", "1");
       action(event);
     },
     onClick: (event: MouseEvent<T>) => {
-      if (event.detail > 0) {
+      if (event.currentTarget.getAttribute("data-press-armed") === "1") {
+        event.currentTarget.removeAttribute("data-press-armed");
         event.preventDefault();
         return;
       }
