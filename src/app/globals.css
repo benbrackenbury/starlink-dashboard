@@ -69,6 +69,16 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+@media (display-mode: standalone) {
+  html {
+    overscroll-behavior: none;
+  }
+
+  body {
+    min-height: 100dvh;
+  }
+}
+
 .scroll-progress {
   position: fixed;
   top: 0;
