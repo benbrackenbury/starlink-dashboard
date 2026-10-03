@@ -1068,43 +1068,26 @@ td .note {
     transition: background-color 0.4s ease, color 0.4s ease, border-color 0.35s ease;
   }
 
-  .page-head,
-  main > section,
-  .grid > section {
-    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  html.reveal-pending .page-head,
+  html.reveal-pending main > section,
+  html.reveal-pending .grid > section {
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.4s ease,
+      color 0.4s ease,
+      border-color 0.35s ease;
   }
 
-  main > section:nth-of-type(1) {
-    animation-delay: 0.04s;
+  html.reveal-pending .page-head:not(.is-in),
+  html.reveal-pending main > section:not(.is-in),
+  html.reveal-pending .grid > section:not(.is-in) {
+    opacity: 0;
+    transform: translateY(16px);
   }
 
-  main > section:nth-of-type(2) {
-    animation-delay: 0.09s;
-  }
-
-  main > section:nth-of-type(3) {
-    animation-delay: 0.14s;
-  }
-
-  main > section:nth-of-type(4) {
-    animation-delay: 0.19s;
-  }
-
-  main > section:nth-of-type(5) {
-    animation-delay: 0.24s;
-  }
-
-  .grid > section:nth-of-type(1) {
-    animation-delay: 0.28s;
-  }
-
-  .grid > section:nth-of-type(2) {
-    animation-delay: 0.32s;
-  }
-
-  .tick {
+  html.reveal-pending .hero.is-in .tick {
     animation: tick-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-    animation-delay: 0.2s;
   }
 
   .task-row:hover {
@@ -1114,18 +1097,6 @@ td .note {
   .track-legend-btn:hover,
   .sight-actions button:hover:not(:disabled) {
     transform: translateY(-1px);
-  }
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 

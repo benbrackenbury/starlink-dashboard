@@ -54,4 +54,23 @@ export const themeBootScript = `(function(){
   root.dataset.theme=resolved;
   root.dataset.themePref=pref;
   root.style.colorScheme=resolved;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  root.classList.add('reveal-pending');
+  function bind(){
+    var nodes=document.querySelectorAll('.page-head, main>section, .grid>section');
+    var io=new IntersectionObserver(function(ents){
+      var shown=[];
+      for (var i=0;i<ents.length;i++) if (ents[i].isIntersecting) shown.push(ents[i]);
+      shown.sort(function(a,b){return a.boundingClientRect.top-b.boundingClientRect.top});
+      for (var j=0;j<shown.length;j++){
+        var el=shown[j].target;
+        el.style.transitionDelay=(j*70)+'ms';
+        el.classList.add('is-in');
+        io.unobserve(el);
+      }
+    },{threshold:0.06,rootMargin:'0px 0px -8% 0px'});
+    for (var k=0;k<nodes.length;k++) io.observe(nodes[k]);
+  }
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
 })();`;
