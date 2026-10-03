@@ -156,7 +156,7 @@ summary,
     white-space: nowrap;
     opacity: 0;
     transform: translate(-6px, -50%);
-    pointer-events: none;
+    pointer-events: auto;
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 999px;

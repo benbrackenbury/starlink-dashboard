@@ -189,11 +189,9 @@ export const GroundTrackMap = memo(function GroundTrackMap({
               data-sat={track.catalogId}
               data-shell={track.shell}
               transform="translate(-20 -20)"
+              aria-label={`${track.name} · ${track.inclinationDeg.toFixed(0)}° shell`}
               {...pick}
             >
-              <title>
-                {track.name} · {track.inclinationDeg.toFixed(0)}° shell
-              </title>
               <circle className="track-map-pulse" r="4.5" />
               <polygon
                 className="track-map-nose"

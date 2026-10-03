@@ -38,11 +38,36 @@ export function ScrollProgress() {
     const stopSection = subscribeActiveSection((id) => {
       setActive((current) => (current === id ? current : id));
     });
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let io: IntersectionObserver | undefined;
+    if (!reduce) {
+      const nodes = document.querySelectorAll(
+        ".page-head, main>section, .grid>section",
+      );
+      io = new IntersectionObserver(
+        (entries) => {
+          const shown = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          shown.forEach((entry, index) => {
+            const el = entry.target as HTMLElement;
+            el.style.transitionDelay = `${index * 70}ms`;
+            el.classList.add("is-in");
+            io?.unobserve(el);
+          });
+        },
+        { threshold: 0.06, rootMargin: "0px 0px -8% 0px" },
+      );
+      nodes.forEach((node) => io?.observe(node));
+    }
+
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       if (tick) window.cancelAnimationFrame(tick);
       stopSection();
+      io?.disconnect();
     };
   }, []);
 
