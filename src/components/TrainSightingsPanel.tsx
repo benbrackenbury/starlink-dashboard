@@ -2,20 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { SightingResult } from "@/lib/sightings";
+import { formatLocalWhen, formatUtcStamp } from "@/lib/format";
 import { pressProps } from "@/lib/press";
+import { patchQuery } from "@/lib/query";
 
 const STORAGE_KEY = "starlink-train-location";
-
-function formatWhen(iso: string) {
-  const date = new Date(iso);
-  return date.toLocaleString(undefined, {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function readStoredCoords() {
   try {
@@ -31,16 +22,23 @@ function readStoredCoords() {
   return null;
 }
 
-export function TrainSightingsPanel() {
+export function TrainSightingsPanel({
+  initialLat = "",
+  initialLon = "",
+}: {
+  initialLat?: string;
+  initialLon?: string;
+}) {
   const form = useRef<HTMLFormElement>(null);
   const inflight = useRef(false);
-  const [lat, setLat] = useState("");
-  const [lon, setLon] = useState("");
+  const [lat, setLat] = useState(initialLat);
+  const [lon, setLon] = useState(initialLon);
   const [geoError, setGeoError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
   const [result, setResult] = useState<SightingResult | null>(null);
+  const errorRef = useRef<HTMLParagraphElement>(null);
 
   async function runLookup(nextLat: number, nextLon: number) {
     if (inflight.current) return;
@@ -54,14 +52,20 @@ export function TrainSightingsPanel() {
       const body = (await res.json()) as SightingResult & { error?: string };
       if (!res.ok) {
         setResult(null);
-        setError(body.error ?? "Lookup failed.");
+        setError(
+          body.error
+            ? `${body.error} Check latitude and longitude, then try Find Trains again.`
+            : "Lookup failed. Check latitude and longitude, then try Find Trains again.",
+        );
         return;
       }
       saveCoords(nextLat, nextLon);
       setResult(body);
     } catch {
       setResult(null);
-      setError("Lookup failed.");
+      setError(
+        "Lookup failed. Check your connection, then try Find Trains again.",
+      );
     } finally {
       inflight.current = false;
       setLoading(false);
@@ -69,14 +73,20 @@ export function TrainSightingsPanel() {
   }
 
   useEffect(() => {
-    const stored = readStoredCoords();
-    if (stored) {
+    const fromUrl =
+      initialLat && initialLon
+        ? { lat: Number(initialLat), lon: Number(initialLon) }
+        : null;
+    const stored = fromUrl?.lat != null && Number.isFinite(fromUrl.lat)
+      ? fromUrl
+      : readStoredCoords();
+    if (stored && Number.isFinite(stored.lat) && Number.isFinite(stored.lon)) {
       setLat(String(stored.lat));
       setLon(String(stored.lon));
     }
 
     const node = form.current;
-    if (!node || !stored) return;
+    if (!node || !stored || !Number.isFinite(stored.lat)) return;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
@@ -87,7 +97,13 @@ export function TrainSightingsPanel() {
     );
     io.observe(node);
     return () => io.disconnect();
+    // seed once from URL or localStorage
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (error || geoError) errorRef.current?.focus();
+  }, [error, geoError]);
 
   function saveCoords(nextLat: number, nextLon: number) {
     setLat(String(nextLat));
@@ -96,12 +112,15 @@ export function TrainSightingsPanel() {
       STORAGE_KEY,
       JSON.stringify({ lat: nextLat, lon: nextLon }),
     );
+    patchQuery({ lat: String(nextLat), lon: String(nextLon) });
   }
 
   function useDeviceLocation() {
     setGeoError(null);
     if (!navigator.geolocation) {
-      setGeoError("This browser will not share a device location.");
+      setGeoError(
+        "This browser will not share a device location. Type latitude and longitude instead.",
+      );
       return;
     }
     setLocating(true);
@@ -117,8 +136,8 @@ export function TrainSightingsPanel() {
         setLocating(false);
         setGeoError(
           err.code === err.PERMISSION_DENIED
-            ? "Location permission denied."
-            : "Could not read device location.",
+            ? "Location permission denied. Allow location for this site, or type coordinates."
+            : "Could not read device location. Type coordinates, or try Use My Location again.",
         );
       },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
@@ -146,10 +165,14 @@ export function TrainSightingsPanel() {
           <input
             type="number"
             name="lat"
+            inputMode="decimal"
+            autoComplete="off"
+            spellCheck={false}
             step="0.0001"
             min={-90}
             max={90}
             required
+            placeholder="51.5074…"
             value={lat}
             onChange={(event) => setLat(event.target.value)}
           />
@@ -159,10 +182,14 @@ export function TrainSightingsPanel() {
           <input
             type="number"
             name="lon"
+            inputMode="decimal"
+            autoComplete="off"
+            spellCheck={false}
             step="0.0001"
             min={-180}
             max={180}
             required
+            placeholder="-0.1278…"
             value={lon}
             onChange={(event) => setLon(event.target.value)}
           />
@@ -175,7 +202,7 @@ export function TrainSightingsPanel() {
               if (!locating) useDeviceLocation();
             })}
           >
-            {locating ? "Locating…" : "Use my location"}
+            {locating ? "Locating…" : "Use My Location"}
           </button>
           <button
             type="submit"
@@ -185,12 +212,22 @@ export function TrainSightingsPanel() {
               if (!loading) form.current?.requestSubmit();
             })}
           >
-            {loading ? "Computing…" : "Find trains"}
+            {loading ? "Computing…" : "Find Trains"}
           </button>
         </div>
       </form>
-      {geoError ? <p className="note">{geoError}</p> : null}
-      {error ? <p className="note">{error}</p> : null}
+      <div aria-live="polite">
+        {geoError ? (
+          <p className="note" ref={errorRef} tabIndex={-1}>
+            {geoError}
+          </p>
+        ) : null}
+        {error ? (
+          <p className="note" ref={errorRef} tabIndex={-1}>
+            {error}
+          </p>
+        ) : null}
+      </div>
 
       {result ? (
         <>
@@ -208,7 +245,7 @@ export function TrainSightingsPanel() {
                     <th>Appears</th>
                     <th>Highest</th>
                     <th>Duration</th>
-                    <th>Max el.</th>
+                    <th>Max El.</th>
                     <th>Sats</th>
                     <th>Launch</th>
                   </tr>
@@ -218,25 +255,31 @@ export function TrainSightingsPanel() {
                     <tr key={`${train.launchId}-${train.startUtc}`}>
                       <td data-label="Appears">
                         <div className="cell-body">
-                          {formatWhen(train.startUtc)}
+                          {formatLocalWhen(train.startUtc)}
                         </div>
                         <div className="note">{train.appears}</div>
                       </td>
                       <td data-label="Highest">
                         <div className="cell-body">
-                          {formatWhen(train.peakUtc)}
+                          {formatLocalWhen(train.peakUtc)}
                         </div>
                         <div className="note">{train.highest}</div>
                       </td>
                       <td data-label="Duration">
-                        <div className="cell-body">{train.durationMin} min</div>
+                        <div className="cell-body">
+                          {train.durationMin}
+                          {"\u00a0"}min
+                        </div>
                         <div className="note">
-                          gone {formatWhen(train.endUtc)}
+                          gone {formatLocalWhen(train.endUtc)}
                         </div>
                       </td>
-                      <td data-label="Max el.">
+                      <td data-label="Max El.">
                         <div className="cell-body">{train.maxElevationDeg}°</div>
-                        <div className="note">{train.rangeKm} km</div>
+                        <div className="note">
+                          {train.rangeKm}
+                          {"\u00a0"}km
+                        </div>
                       </td>
                       <td data-label="Sats">
                         <div className="cell-body">{train.satellites}</div>
@@ -255,14 +298,19 @@ export function TrainSightingsPanel() {
                 </tbody>
               </table>
             </div>
-          ) : null}
+          ) : (
+            <p className="note">
+              No trains in the next {result.horizonHours} hours from this
+              location. Try another point, or wait for a new launch.
+            </p>
+          )}
           <p className="source">
             Source:{" "}
             <a href={result.sourceUrl} rel="noreferrer">
               {result.sourceLabel}
             </a>
-            . GP fetched {result.fetchedUtc.replace("T", " ").replace(/\.\d+Z$/, " UTC")}.
-            Times shown in your local timezone.
+            . GP fetched {formatUtcStamp(result.fetchedUtc)}. Times shown in
+            your local timezone.
           </p>
         </>
       ) : null}

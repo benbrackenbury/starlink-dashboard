@@ -46,7 +46,7 @@ export function ContentsNav() {
     <nav
       ref={list}
       className="contents"
-      aria-label="On this page"
+      aria-label="On This Page"
       onPointerMove={proximity}
       onPointerLeave={clear}
     >

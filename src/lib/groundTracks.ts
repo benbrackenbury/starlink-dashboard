@@ -27,6 +27,7 @@ export type GroundTrack = {
 };
 
 export type GroundTrackSet = {
+  fetchedUtc: string;
   fetchedLabel: string;
   sourceLabel: string;
   sourceUrl: string;
@@ -171,6 +172,7 @@ export function getGroundTracks(): GroundTrackSet {
     .filter((track): track is GroundTrack => track !== null);
 
   return {
+    fetchedUtc: sample.fetchedUtc,
     fetchedLabel: sample.fetchedLabel,
     sourceLabel: sample.sourceLabel,
     sourceUrl: sample.sourceUrl,

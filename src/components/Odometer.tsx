@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatCount } from "@/lib/format";
 
 export function Odometer({
   value,
@@ -25,36 +26,41 @@ export function Odometer({
     return () => window.clearTimeout(id);
   }, []);
 
-  const text = value.toLocaleString("en-GB", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
+  const text =
+    decimals > 0
+      ? value.toLocaleString("en-GB", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        })
+      : formatCount(value);
   const label = `${prefix}${text}${suffix}`;
 
   return (
-    <span className="odometer" aria-label={label}>
-      {prefix ? <span className="odometer-affix">{prefix}</span> : null}
-      {text.split("").map((ch, index) =>
-        /\d/.test(ch) ? (
-          <span className="odometer-col" key={`${index}-${ch}`}>
-            <span
-              className="odometer-strip"
-              style={{
-                transform: `translateY(-${ready ? ch : "0"}em)`,
-              }}
-            >
-              {"0123456789".split("").map((digit) => (
-                <span key={digit}>{digit}</span>
-              ))}
+    <span className="odometer" role="img" aria-label={label}>
+      <span aria-hidden="true">
+        {prefix ? <span className="odometer-affix">{prefix}</span> : null}
+        {text.split("").map((ch, index) =>
+          /\d/.test(ch) ? (
+            <span className="odometer-col" key={`${index}-${ch}`}>
+              <span
+                className="odometer-strip"
+                style={{
+                  transform: `translateY(-${ready ? ch : "0"}em)`,
+                }}
+              >
+                {"0123456789".split("").map((digit) => (
+                  <span key={digit}>{digit}</span>
+                ))}
+              </span>
             </span>
-          </span>
-        ) : (
-          <span className="odometer-sep" key={`${index}-${ch}`}>
-            {ch}
-          </span>
-        ),
-      )}
-      {suffix ? <span className="odometer-affix">{suffix}</span> : null}
+          ) : (
+            <span className="odometer-sep" key={`${index}-${ch}`}>
+              {ch}
+            </span>
+          ),
+        )}
+        {suffix ? <span className="odometer-affix">{suffix}</span> : null}
+      </span>
     </span>
   );
 }

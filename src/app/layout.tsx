@@ -22,12 +22,12 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Starlink stats",
+  title: "Starlink Stats",
   description: "Public Starlink figures with sources and dates.",
-  applicationName: "Starlink stats",
+  applicationName: "Starlink Stats",
   appleWebApp: {
     capable: true,
-    title: "Starlink stats",
+    title: "Starlink Stats",
     statusBarStyle: "default",
   },
   formatDetection: {
@@ -64,7 +64,12 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
-      <body className={sans.className}>{children}</body>
+      <body className={sans.className}>
+        <a className="skip-link" href="#main">
+          Skip to Main Content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

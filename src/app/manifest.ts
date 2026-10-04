@@ -4,7 +4,7 @@ import { THEME_BG } from "@/lib/theme";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Starlink stats",
+    name: "Starlink Stats",
     short_name: "Starlink",
     description: "Public Starlink figures with sources and dates.",
     start_url: "/",

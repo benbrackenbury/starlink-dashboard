@@ -98,11 +98,11 @@ export function ScrollProgress() {
       <div ref={bar} className="scroll-progress" aria-hidden="true" />
       <div ref={wrap} className="scroll-pill-wrap">
         {open ? (
-          <ul className="scroll-pill-menu">
+          <ul className="scroll-pill-menu" id="scroll-pill-menu">
             {PAGE_SECTIONS.map((item) => (
               <li key={item.id}>
-                <button
-                  type="button"
+                <a
+                  href={`#${item.id}`}
                   className={item.id === active ? "is-active" : undefined}
                   {...pressProps(() => {
                     jumpToSection(item.id);
@@ -111,7 +111,7 @@ export function ScrollProgress() {
                   })}
                 >
                   {item.label}
-                </button>
+                </a>
               </li>
             ))}
           </ul>
@@ -120,6 +120,9 @@ export function ScrollProgress() {
           type="button"
           className="scroll-pill"
           aria-expanded={open}
+          aria-haspopup="true"
+          aria-controls="scroll-pill-menu"
+          aria-label={`On This Page, ${label}`}
           {...pressProps(() => setOpen((value) => !value))}
         >
           <svg viewBox="0 0 20 20" aria-hidden="true">

@@ -1,7 +1,8 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { GroundTrackMap, paintLive } from "@/components/GroundTrackMap";
+import { formatUtcStamp } from "@/lib/format";
 import {
   headingDeg,
   positionFromSatrec,
@@ -15,6 +16,7 @@ import {
   type TrackSegment,
 } from "@/lib/groundTracks";
 import { pressProps } from "@/lib/press";
+import { patchQuery } from "@/lib/query";
 
 const SHELL_LABEL: Record<ShellId, string> = {
   "43": "43°",
@@ -30,16 +32,25 @@ const FUTURE_MS = 8 * 60 * 1000;
 const FUTURE_STEPS = 10;
 const HEADING_AHEAD_MS = 20_000;
 
-export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
+function shellsParam(shells: Record<ShellId, boolean>) {
+  if (SHELLS.every((shell) => shells[shell])) return null;
+  return SHELLS.filter((shell) => shells[shell]).join(",") || "none";
+}
+
+export function GroundTrackPanel({
+  data,
+  initialShells,
+  initialSat,
+}: {
+  data: GroundTrackSet;
+  initialShells: Record<ShellId, boolean>;
+  initialSat: number | null;
+}) {
   const panel = useRef<HTMLDivElement>(null);
   const liveRef = useRef<Record<number, LiveFix>>({});
-  const [shells, setShells] = useState<Record<ShellId, boolean>>({
-    "43": true,
-    "53": true,
-    "70": true,
-    "97": true,
-  });
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [shells, setShells] = useState(initialShells);
+  const [selectedId, setSelectedId] = useState<number | null>(initialSat);
+  const [paused, setPaused] = useState(false);
   const [trails, setTrails] = useState<Record<number, TrackSegment[]>>({});
   const [futures, setFutures] = useState<Record<number, TrackSegment[]>>({});
 
@@ -119,14 +130,33 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
     if (panel.current) paintLive(panel.current, liveRef.current);
   }, [trails, futures, visibleTracks, activeId]);
 
+  useEffect(() => {
+    document.documentElement.classList.toggle("motion-paused", paused);
+    return () => document.documentElement.classList.remove("motion-paused");
+  }, [paused]);
+
+  function persist(nextShells: Record<ShellId, boolean>, sat: number | null) {
+    patchQuery({
+      shells: shellsParam(nextShells),
+      sat: sat == null ? null : String(sat),
+    });
+  }
+
   function toggleShell(shell: ShellId) {
-    setShells((current) => ({ ...current, [shell]: !current[shell] }));
+    const next = { ...shells, [shell]: !shells[shell] };
+    setShells(next);
+    persist(next, selectedId);
+  }
+
+  function selectSat(id: number | null) {
+    setSelectedId(id);
+    persist(shells, id);
   }
 
   return (
     <div className="track-panel" ref={panel}>
       <div className="track-toolbar">
-        <div className="track-legend" role="group" aria-label="Inclination shells">
+        <div className="track-legend" role="group" aria-label="Inclination Shells">
           {SHELLS.map((shell) => (
             <button
               key={shell}
@@ -140,15 +170,34 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
               aria-pressed={shells[shell]}
               {...pressProps(() => toggleShell(shell))}
             >
-              <span className="track-swatch" data-shell={shell} />
+              <span className="track-swatch" data-shell={shell} aria-hidden="true" />
               {SHELL_LABEL[shell]} shell
             </button>
           ))}
         </div>
         <p className="track-clock">
           <span className="track-live-dot" aria-hidden="true" />
-          <span data-live-clock>Live positions starting…</span>
+          <span data-live-clock aria-live="off">
+            Live Positions Starting…
+          </span>
         </p>
+        <button
+          type="button"
+          className="track-legend-btn"
+          aria-pressed={paused}
+          {...pressProps(() => setPaused((value) => !value))}
+        >
+          {paused ? "Play Motion" : "Pause Motion"}
+        </button>
+        {activeId != null ? (
+          <button
+            type="button"
+            className="track-legend-btn"
+            {...pressProps(() => selectSat(null))}
+          >
+            Clear Selection
+          </button>
+        ) : null}
       </div>
 
       {visibleTracks.length > 0 ? (
@@ -157,80 +206,85 @@ export function GroundTrackPanel({ data }: { data: GroundTrackSet }) {
           trails={trails}
           futures={futures}
           selectedId={activeId}
-          onSelect={setSelectedId}
+          onSelect={selectSat}
         />
       ) : (
         <p>Turn a shell back on to see tracks.</p>
       )}
 
-      <div className="table-wrap">
-        <table className="track-table">
-          <thead>
-            <tr>
-              <th>Satellite</th>
-              <th>Position now</th>
-              <th>Altitude</th>
-              <th>Inclination</th>
-              <th>NORAD</th>
-              <th>GP epoch (UTC)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleTracks.map((track) => {
-              const selected = activeId === track.catalogId;
-              return (
-                <tr
-                  key={track.catalogId}
-                  className={selected ? "is-selected" : undefined}
-                  tabIndex={0}
-                  aria-selected={selected}
-                  {...pressProps(() =>
-                    setSelectedId(selected ? null : track.catalogId),
-                  )}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setSelectedId(selected ? null : track.catalogId);
-                    }
-                  }}
-                >
-                  <td data-label="Satellite">
-                    <div className="cell-body">
-                      <span className="track-name">
-                        <span className="track-swatch" data-shell={track.shell} />
-                        {track.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td data-label="Position">
-                    <div className="cell-body" data-pos={track.catalogId}>
-                      …
-                    </div>
-                  </td>
-                  <td data-label="Altitude">
-                    <div className="cell-body" data-alt={track.catalogId}>
-                      …
-                    </div>
-                  </td>
-                  <td data-label="Incl.">
-                    <div className="cell-body">
-                      {track.inclinationDeg.toFixed(2)}°
-                    </div>
-                  </td>
-                  <td data-label="NORAD">
-                    <div className="cell-body">{track.catalogId}</div>
-                  </td>
-                  <td data-label="Epoch" className="num">
-                    <div className="cell-body">
-                      {track.epoch.replace("T", " ").replace(/\.\d+$/, "")}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      {visibleTracks.length > 0 ? (
+        <div className="table-wrap">
+          <table className="track-table">
+            <thead>
+              <tr>
+                <th>Satellite</th>
+                <th>Position Now</th>
+                <th>Altitude</th>
+                <th>Inclination</th>
+                <th>NORAD</th>
+                <th>GP Epoch (UTC)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visibleTracks.map((track) => {
+                const selected = activeId === track.catalogId;
+                return (
+                  <tr
+                    key={track.catalogId}
+                    className={selected ? "is-selected" : undefined}
+                    aria-selected={selected}
+                  >
+                    <td data-label="Satellite">
+                      <div className="cell-body">
+                        <button
+                          type="button"
+                          className="track-select"
+                          aria-pressed={selected}
+                          {...pressProps(() =>
+                            selectSat(selected ? null : track.catalogId),
+                          )}
+                        >
+                          <span className="track-name">
+                            <span
+                              className="track-swatch"
+                              data-shell={track.shell}
+                              aria-hidden="true"
+                            />
+                            {track.name}
+                          </span>
+                        </button>
+                      </div>
+                    </td>
+                    <td data-label="Position">
+                      <div className="cell-body" data-pos={track.catalogId}>
+                        …
+                      </div>
+                    </td>
+                    <td data-label="Altitude">
+                      <div className="cell-body" data-alt={track.catalogId}>
+                        …
+                      </div>
+                    </td>
+                    <td data-label="Incl.">
+                      <div className="cell-body">
+                        {track.inclinationDeg.toFixed(2)}°
+                      </div>
+                    </td>
+                    <td data-label="NORAD">
+                      <div className="cell-body">{track.catalogId}</div>
+                    </td>
+                    <td data-label="Epoch" className="num">
+                      <div className="cell-body">
+                        {formatUtcStamp(track.epoch)}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
     </div>
   );
 }

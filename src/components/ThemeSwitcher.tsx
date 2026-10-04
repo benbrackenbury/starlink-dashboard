@@ -96,7 +96,7 @@ export function ThemeSwitcher() {
   }
 
   return (
-    <div className="gooey theme-switcher" role="group" aria-label="Colour theme">
+    <div className="gooey theme-switcher" role="group" aria-label="Colour Theme">
       {OPTIONS.map((option) => {
         const Icon = option.icon;
         return (

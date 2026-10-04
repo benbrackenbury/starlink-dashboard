@@ -12,6 +12,7 @@ import {
   type ShellId,
   type TrackSegment,
 } from "@/lib/groundTracks";
+import { formatCount, formatUtcStamp } from "@/lib/format";
 import { pressProps } from "@/lib/press";
 
 const MERIDIANS = [-180, -120, -60, 0, 60, 120, 180];
@@ -86,7 +87,7 @@ export function paintLive(root: HTMLElement, live: Record<number, LiveFix>) {
   const clock = root.querySelector("[data-live-clock]");
   if (clock) {
     const date = new Date();
-    clock.textContent = `Live · ${date.toISOString().slice(0, 19).replace("T", " ")} UTC`;
+    clock.textContent = `Live · ${formatUtcStamp(date.toISOString())}`;
   }
 
   root.querySelectorAll<SVGGElement>("[data-sat]").forEach((node) => {
@@ -106,7 +107,7 @@ export function paintLive(root: HTMLElement, live: Record<number, LiveFix>) {
   root.querySelectorAll<HTMLElement>("[data-alt]").forEach((node) => {
     const pos = live[Number(node.dataset.alt)];
     node.textContent = pos
-      ? `${Math.round(pos.altKm).toLocaleString("en-GB")} km`
+      ? `${formatCount(Math.round(pos.altKm))}\u00a0km`
       : "…";
   });
 
@@ -219,9 +220,10 @@ export const GroundTrackMap = memo(function GroundTrackMap({
       </svg>
       <figcaption>
         Live SGP4 motion from the published GP set, not GPS. Solid recent trail
-        is the last 15 minutes; dashed is the next 8. Colours are inclination
-        shells. Land from Natural Earth 110m (public domain). Click a track or
-        row to isolate one satellite.
+        is the last 15{"\u00a0"}minutes; dashed is the next 8{"\u00a0"}minutes.
+        Colours are inclination shells. Land from Natural Earth 110m (public
+        domain). Click a track, or use Select in the table. Pause Motion stops
+        the looping trail animation.
       </figcaption>
     </figure>
   );

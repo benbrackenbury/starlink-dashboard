@@ -1,16 +1,32 @@
 export const PAGE_SECTIONS = [
-  { id: "orbit", label: "Satellites in orbit" },
-  { id: "version", label: "By version" },
-  { id: "shells", label: "Inclination shells" },
-  { id: "tracks", label: "Ground tracks" },
-  { id: "trains", label: "Visible trains" },
-  { id: "launches", label: "Launch history" },
-  { id: "finance", label: "Revenue and customers" },
-  { id: "coverage", label: "Where it operates" },
+  { id: "orbit", label: "Satellites in Orbit" },
+  { id: "version", label: "By Version" },
+  { id: "shells", label: "Inclination Shells" },
+  { id: "tracks", label: "Ground Tracks" },
+  { id: "trains", label: "Visible Trains" },
+  { id: "launches", label: "Launch History" },
+  { id: "finance", label: "Revenue and Customers" },
+  { id: "coverage", label: "Where It Operates" },
   { id: "d2c", label: "Direct to Cell" },
 ] as const;
 
 export type SectionId = (typeof PAGE_SECTIONS)[number]["id"];
+
+export function isModifiedClick(event: {
+  metaKey: boolean;
+  ctrlKey: boolean;
+  shiftKey: boolean;
+  altKey: boolean;
+  button: number;
+}) {
+  return (
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey ||
+    event.button !== 0
+  );
+}
 
 export function readActiveSection() {
   const line = window.innerHeight * 0.22;

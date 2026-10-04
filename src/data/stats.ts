@@ -1,7 +1,8 @@
 export type Source = {
   label: string;
   url: string;
-  published: string;
+  publishedIso: string;
+  publishedNote?: string;
 };
 
 export const constellation = {
@@ -30,12 +31,13 @@ export const constellation = {
   source: {
     label: "Jonathan McDowell, Starlink launch statistics",
     url: "https://planet4589.org/space/con/star/stats.html",
-    published: "31 August 2026 (V1/V2 totals; V3 row predates Flight 14)",
+    publishedIso: "2026-08-31",
+    publishedNote: "V1/V2 totals; V3 row predates Flight 14",
   } satisfies Source,
   sourceV3: {
     label: "SpaceX, Starship Flight 14",
     url: "https://www.spacex.com/launches/starship-flight-14/",
-    published: "28 September 2026",
+    publishedIso: "2026-09-28",
   } satisfies Source,
 };
 
@@ -43,65 +45,68 @@ export const launches = {
   recent: [
     {
       name: "Starlink Group 31-1 (Starship Flight 14)",
-      date: "28 September 2026, 12:48 UTC",
+      dateIso: "2026-09-28T12:48:00Z",
       site: "Starbase, Texas",
-      payload: "26 Starlink V3 satellites",
+      payload: "26\u00a0Starlink V3 satellites",
       status: "Launch successful",
     },
     {
       name: "Starlink Group 15-27",
-      date: "20 September 2026, 01:47 UTC",
+      dateIso: "2026-09-20T01:47:00Z",
       site: "Vandenberg SFB, California",
-      payload: "27 satellites",
+      payload: "27\u00a0satellites",
       status: "Launch successful",
     },
     {
       name: "Starlink Group 15-24",
-      date: "6 September 2026, 14:26 UTC",
+      dateIso: "2026-09-06T14:26:00Z",
       site: "Vandenberg SFB, California",
-      payload: "27 satellites",
+      payload: "27\u00a0satellites",
       status: "Launch successful",
     },
     {
       name: "Starlink Group 15-23",
-      date: "2 September 2026, 08:42 UTC",
+      dateIso: "2026-09-02T08:42:00Z",
       site: "Vandenberg SFB, California",
-      payload: "27 satellites",
+      payload: "27\u00a0satellites",
       status: "Launch successful",
     },
     {
       name: "Starlink Group 15-22",
-      date: "26 August 2026, 09:35 UTC",
+      dateIso: "2026-08-26T09:35:00Z",
       site: "Vandenberg SFB, California",
-      payload: "27 satellites",
+      payload: "27\u00a0satellites",
       status: "Launch successful",
     },
     {
       name: "Starlink Group 10-49",
-      date: "25 August 2026, 09:33 UTC",
+      dateIso: "2026-08-25T09:33:00Z",
       site: "Cape Canaveral SFS, Florida",
-      payload: "29 satellites",
+      payload: "29\u00a0satellites",
       status: "Launch successful",
     },
   ],
   upcoming: [
     {
       name: "Starlink Group 15-25",
-      date: "10 October 2026, 23:00 UTC (NET)",
+      dateIso: "2026-10-10T23:00:00Z",
+      net: true,
       site: "Vandenberg SFB, SLC-4E",
-      payload: "27 satellites",
+      payload: "27\u00a0satellites",
       status: "Go for launch",
     },
   ],
   source: {
     label: "The Space Devs Launch Library 2 API",
     url: "https://ll.thespacedevs.com/2.2.0/launch/previous/?search=Starlink&limit=6",
-    published: "Fetched 1 October 2026",
+    publishedIso: "2026-10-01",
+    publishedNote: "Fetched",
   } satisfies Source,
   upcomingSource: {
     label: "The Space Devs Launch Library 2 (upcoming) and SpaceX mission page",
     url: "https://ll.thespacedevs.com/2.2.0/launch/upcoming/?search=Starlink&limit=8",
-    published: "API last updated 30 September 2026; SpaceX page dated 30 September 2026",
+    publishedIso: "2026-09-30",
+    publishedNote: "API last updated; SpaceX page same day",
   } satisfies Source,
 };
 
@@ -114,12 +119,14 @@ export const finance = {
   source: {
     label: "CNBC, reporting SpaceX IPO prospectus",
     url: "https://www.cnbc.com/2026/05/21/spacex-starlink-growth-profit-nasdaq-ipo.html",
-    published: "21 May 2026",
+    publishedIso: "2026-05-21",
   } satisfies Source,
   sourceFiling: {
     label: "SpaceX free writing prospectus, connectivity tables",
     url: "https://www.sec.gov/Archives/edgar/data/1181412/000162828026040610/spacexfwp.htm",
-    published: "Prospectus tables for 2023–2025 and the quarter ended 31 March 2026",
+    publishedIso: "2026-03-31",
+    publishedNote:
+      "Prospectus tables for 2023–2025 and the quarter ended 31 March 2026",
   } satisfies Source,
   snapshots: [
     {
@@ -155,17 +162,18 @@ export const finance = {
 };
 
 export const coverage = {
-  official: "150+ countries, territories, and other markets",
-  prospectus: "Over 160 countries; available on all seven continents",
+  official: "150+\u00a0countries, territories, and other markets",
+  prospectus: "Over 160\u00a0countries; available on all seven continents",
   sourceOfficial: {
     label: "Starlink availability map",
     url: "https://starlink.com/map",
-    published: "Fetched 1 October 2026",
+    publishedIso: "2026-10-01",
+    publishedNote: "Fetched",
   } satisfies Source,
   sourceProspectus: {
     label: "CNBC, reporting SpaceX IPO prospectus",
     url: "https://www.cnbc.com/2026/05/21/spacex-starlink-growth-profit-nasdaq-ipo.html",
-    published: "21 May 2026",
+    publishedIso: "2026-05-21",
   } satisfies Source,
 };
 
@@ -203,7 +211,9 @@ export const shells = {
   source: {
     label: "Jonathan McDowell, Starlink launch statistics",
     url: "https://planet4589.org/space/con/star/stats.html",
-    published: "31 August 2026 (inclination bins grouped to the four shells used on the map)",
+    publishedIso: "2026-08-31",
+    publishedNote:
+      "inclination bins grouped to the four shells used on the map",
   } satisfies Source,
 };
 
@@ -220,6 +230,7 @@ export const directToCell = {
   source: {
     label: "SpaceX, Direct to Cell",
     url: "https://www.starlink.com/business/direct-to-cell",
-    published: "Fetched 1 October 2026",
+    publishedIso: "2026-10-01",
+    publishedNote: "Fetched",
   } satisfies Source,
 };

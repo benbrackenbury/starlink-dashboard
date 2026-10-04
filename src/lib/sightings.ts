@@ -13,6 +13,8 @@ import {
   type SatRec,
 } from "@/lib/sgp4";
 
+import { formatUtcDay } from "@/lib/format";
+
 const AU_KM = 149_597_870.7;
 const GP_URLS = [
   "https://raw.githubusercontent.com/satvisorcom/satvisor-data/master/celestrak/json/last-30-days.json",
@@ -338,14 +340,12 @@ async function loadStarlinkGp(): Promise<GpCache> {
 }
 
 function formatLaunchDate(isoDate: string) {
-  const [year, month, day] = isoDate.split("-").map(Number);
-  if (!year || !month || !day) return isoDate;
-  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+  const iso = /^\d{4}-\d{2}-\d{2}$/.test(isoDate)
+    ? `${isoDate}T00:00:00Z`
+    : isoDate;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return formatUtcDay(iso);
 }
 
 async function loadMissionNamesByDate() {

@@ -53,6 +53,12 @@ html[data-theme="dark"] {
   box-sizing: border-box;
 }
 
+html {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--ink) 18%, transparent);
+  scroll-padding-top: 1.2rem;
+}
+
 html,
 body {
   margin: 0;
@@ -61,6 +67,33 @@ body {
   max-width: 100%;
   background: var(--bg);
   color: var(--ink);
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: max(0.75rem, env(safe-area-inset-left));
+  top: max(0.75rem, env(safe-area-inset-top));
+  z-index: 40;
+  padding: 0.4rem 0.75rem;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
 }
 
 body {
@@ -169,6 +202,10 @@ summary,
     opacity: 1;
     transform: translate(0, -50%);
   }
+
+  .contents a:hover .contents-mark {
+    background: color-mix(in srgb, var(--ink) 55%, transparent);
+  }
 }
 
 section[id] {
@@ -178,7 +215,11 @@ section[id] {
 main {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem max(4rem, env(safe-area-inset-bottom, 0px) + 2.5rem);
+  padding:
+    2.5rem
+    max(1.5rem, env(safe-area-inset-right, 0px))
+    max(4rem, env(safe-area-inset-bottom, 0px) + 2.5rem)
+    max(1.5rem, env(safe-area-inset-left, 0px));
 }
 
 h1 {
@@ -187,6 +228,7 @@ h1 {
   letter-spacing: -0.03em;
   margin: 0 0 0.4rem;
   line-height: 1.1;
+  text-wrap: balance;
 }
 
 h2 {
@@ -196,6 +238,7 @@ h2 {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
+  text-wrap: balance;
 }
 
 h3 {
@@ -205,6 +248,7 @@ h3 {
   color: var(--muted);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  text-wrap: balance;
 }
 
 .page-head {
@@ -267,6 +311,11 @@ p.lede {
 
 .gooey button:last-child {
   border-radius: 0 999px 999px 0;
+}
+
+.gooey button:hover:not(.is-active) {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, var(--bar));
 }
 
 .gooey button.is-active {
@@ -480,6 +529,7 @@ section {
   font-weight: 600;
   font-size: 0.92rem;
   letter-spacing: -0.01em;
+  overflow-wrap: break-word;
 }
 
 .task-meta {
@@ -610,18 +660,20 @@ table td:first-child {
   font-size: 0.72rem;
 }
 
-.source a {
+.source a,
+.attrib a {
   color: var(--accent);
+}
+
+.source a:hover,
+.attrib a:hover {
+  text-decoration: underline;
 }
 
 .attrib {
   margin: 1.5rem 0 0;
   font-size: 0.8rem;
   color: var(--muted);
-}
-
-.attrib a {
-  color: var(--accent);
 }
 
 .grid {
@@ -756,7 +808,11 @@ table td:first-child {
 
 @media (max-width: 840px) {
   main {
-    padding: 1.25rem 0.9rem max(3rem, env(safe-area-inset-bottom, 0px) + 1.75rem);
+    padding:
+      1.25rem
+      max(0.9rem, env(safe-area-inset-right, 0px))
+      max(3rem, env(safe-area-inset-bottom, 0px) + 1.75rem)
+      max(0.9rem, env(safe-area-inset-left, 0px));
   }
 
   h2 {
@@ -1126,6 +1182,26 @@ td .note {
   opacity: 0.45;
 }
 
+.track-legend-btn:hover {
+  background: color-mix(in srgb, var(--ink) 8%, var(--bar));
+}
+
+.track-select {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.track-select:hover {
+  text-decoration: underline;
+}
+
 .track-clock {
   margin: 0;
   font-size: 0.8rem;
@@ -1221,25 +1297,8 @@ td .note {
   gap: 0.4rem;
 }
 
-.track-table tbody tr {
-  cursor: pointer;
-}
-
-.track-table tbody tr:hover {
-  background: color-mix(in srgb, var(--ink) 4%, var(--card));
-}
-
 .track-table tbody tr.is-selected {
   background: color-mix(in srgb, var(--accent) 12%, var(--card));
-}
-
-.track-table tbody tr:focus {
-  outline: none;
-}
-
-.track-table tbody tr:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
 }
 
 .sight-form {
@@ -1275,6 +1334,10 @@ td .note {
   width: 10rem;
 }
 
+.sight-form input:hover {
+  border-color: color-mix(in srgb, var(--ink) 35%, var(--line));
+}
+
 .sight-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1303,6 +1366,14 @@ td .note {
 .sight-actions button[type="submit"] {
   background: var(--accent);
   color: var(--accent-ink);
+}
+
+.sight-actions button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 8%, var(--bar));
+}
+
+.sight-actions button[type="submit"]:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 82%, var(--bg));
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1380,7 +1451,14 @@ td .note {
     animation: none;
   }
 
-  .odometer-strip {
+  .odometer-strip,
+  .task-row,
+  .gooey button,
+  .track-legend-btn,
+  .sight-actions button,
+  .theme-switcher svg,
+  .contents-mark,
+  .contents-label {
     transition: none;
   }
 
@@ -1388,11 +1466,12 @@ td .note {
   .contents-mark {
     transform: none;
   }
+}
 
-  .contents-mark,
-  .contents-label {
-    transition: none;
-  }
+html.motion-paused .track-map-pulse,
+html.motion-paused .track-map-path.is-active,
+html.motion-paused .track-live-dot {
+  animation: none;
 }
 
 @media (max-width: 840px) {
@@ -1405,6 +1484,10 @@ td .note {
 }
 
 @media (max-width: 959px) {
+  html {
+    scroll-padding-bottom: 5.75rem;
+  }
+
   .scroll-progress {
     display: none;
   }
@@ -1472,6 +1555,10 @@ td .note {
     transform-origin: 10px 10px;
   }
 
+  .scroll-pill:hover {
+    background: color-mix(in srgb, var(--ink) 4%, var(--card));
+  }
+
   .scroll-pill span {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1487,23 +1574,22 @@ td .note {
     border: 1px solid var(--line);
     border-radius: 0.9rem;
     box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 12%, transparent);
+    overscroll-behavior: contain;
   }
 
-  .scroll-pill-menu button {
-    appearance: none;
+  .scroll-pill-menu a {
+    display: block;
     width: 100%;
-    border: 0;
-    background: transparent;
     color: var(--ink);
-    font: inherit;
     font-size: 0.85rem;
     text-align: left;
+    text-decoration: none;
     padding: 0.5rem 0.65rem;
     border-radius: 0.55rem;
-    cursor: pointer;
   }
 
-  .scroll-pill-menu button.is-active {
+  .scroll-pill-menu a:hover,
+  .scroll-pill-menu a.is-active {
     background: var(--bar);
   }
 
