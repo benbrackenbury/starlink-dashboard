@@ -5,8 +5,7 @@ export const PAGE_SECTIONS = [
   { id: "tracks", label: "Ground tracks" },
   { id: "trains", label: "Visible trains" },
   { id: "launches", label: "Launch history" },
-  { id: "finance", label: "Revenue and profit" },
-  { id: "customers", label: "Customers" },
+  { id: "finance", label: "Revenue and customers" },
   { id: "coverage", label: "Where it operates" },
   { id: "d2c", label: "Direct to Cell" },
 ] as const;

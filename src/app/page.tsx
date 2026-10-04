@@ -1,13 +1,13 @@
 import { ContentsNav } from "@/components/ContentsNav";
 import { GroundTrackPanel } from "@/components/GroundTrackPanel";
 import { Odometer } from "@/components/Odometer";
+import { OutlookPanel } from "@/components/OutlookPanel";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { TrainSightingsPanel } from "@/components/TrainSightingsPanel";
 import {
   constellation,
   coverage,
-  customers,
   directToCell,
   finance,
   launches,
@@ -245,31 +245,17 @@ export default function HomePage() {
           <SourceLine {...launches.source} />
         </section>
 
-        <div className="grid">
-          <section id="finance">
-            <h2>Estimated revenue and profit</h2>
-            <div className="figure">{finance.revenue}</div>
-            <p className="sub">
-              Estimate / reported figure: {finance.revenueLabel}, {finance.year}.
-            </p>
-            <div className="figure">{finance.profit}</div>
-            <p className="sub">
-              Estimate / reported figure: {finance.profitLabel}, {finance.year}.
-            </p>
-            <p className="note">{finance.caveat}</p>
-            <SourceLine {...finance.source} />
-          </section>
-
-          <section id="customers">
-            <h2>Customers</h2>
-            <div className="figure">
-              <Odometer value={customers.total} />
-            </div>
-            <p className="sub">{customers.label}.</p>
-            <p className="note">{customers.caveat}</p>
-            <SourceLine {...customers.source} />
-          </section>
-        </div>
+        <section id="finance">
+          <h2>Revenue, profit, and customers</h2>
+          <p className="sub">
+            Drag the year to move through prospectus history and a naive
+            projection to 2030.
+          </p>
+          <OutlookPanel />
+          <p className="note">{finance.caveat}</p>
+          <SourceLine {...finance.source} />
+          <SourceLine {...finance.sourceFiling} />
+        </section>
 
         <div className="grid">
           <section id="coverage">

@@ -106,18 +106,52 @@ export const launches = {
 };
 
 export const finance = {
-  year: "2025",
-  revenue: "$11.39 billion",
-  profit: "$4.42 billion",
-  revenueLabel: "Connectivity unit revenue (primarily Starlink)",
-  profitLabel: "Connectivity unit operating income",
+  revenueLabel: "Connectivity revenue, trailing twelve months",
+  profitLabel: "Connectivity operating income, trailing twelve months",
+  customersLabel: "Starlink subscribers (service lines)",
   caveat:
-    "Figures are SpaceX prospectus numbers for 2025 as reported by CNBC, not a 2026 forecast. They cover the connectivity unit, which CNBC says is primarily Starlink.",
+    "Solid line is prospectus history. After March 2026 the dashed line holds the last reported growth rate still. That is not a SpaceX forecast. Revenue and profit after year-end 2025 are trailing twelve months: 2025 plus Q1 2026 minus Q1 2025. The connectivity unit is primarily Starlink.",
   source: {
     label: "CNBC, reporting SpaceX IPO prospectus",
     url: "https://www.cnbc.com/2026/05/21/spacex-starlink-growth-profit-nasdaq-ipo.html",
     published: "21 May 2026",
   } satisfies Source,
+  sourceFiling: {
+    label: "SpaceX free writing prospectus, connectivity tables",
+    url: "https://www.sec.gov/Archives/edgar/data/1181412/000162828026040610/spacexfwp.htm",
+    published: "Prospectus tables for 2023–2025 and the quarter ended 31 March 2026",
+  } satisfies Source,
+  snapshots: [
+    {
+      year: 2023,
+      month: 12,
+      revenue: 3_869_000_000,
+      profit: 469_000_000,
+      customers: 2_300_000,
+    },
+    {
+      year: 2024,
+      month: 12,
+      revenue: 7_599_000_000,
+      profit: 2_006_000_000,
+      customers: 4_400_000,
+    },
+    {
+      year: 2025,
+      month: 12,
+      revenue: 11_387_000_000,
+      profit: 4_423_000_000,
+      customers: 8_900_000,
+    },
+    {
+      year: 2026,
+      month: 3,
+      revenue: 12_169_000_000,
+      profit: 4_578_000_000,
+      customers: 10_300_000,
+    },
+  ],
+  range: { startYear: 2023, startMonth: 12, endYear: 2030, endMonth: 12 },
 };
 
 export const coverage = {
@@ -170,18 +204,6 @@ export const shells = {
     label: "Jonathan McDowell, Starlink launch statistics",
     url: "https://planet4589.org/space/con/star/stats.html",
     published: "31 August 2026 (inclination bins grouped to the four shells used on the map)",
-  } satisfies Source,
-};
-
-export const customers = {
-  total: 7_600_000,
-  label: "Customers at year-end 2025",
-  caveat:
-    "Prospectus figure for Starlink customers, as reported by CNBC. It is a 2025 year-end count, not a 2026 run-rate.",
-  source: {
-    label: "CNBC, reporting SpaceX IPO prospectus",
-    url: "https://www.cnbc.com/2026/05/21/spacex-starlink-growth-profit-nasdaq-ipo.html",
-    published: "21 May 2026",
   } satisfies Source,
 };
 
