@@ -639,6 +639,121 @@ table td:first-child {
   text-wrap: pretty;
 }
 
+.outlook-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem 1.1rem;
+  margin-bottom: 0.85rem;
+}
+
+.outlook-metrics .sub {
+  margin-bottom: 0;
+}
+
+.outlook-metrics .figure {
+  font-size: 1.35rem;
+}
+
+.outlook-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.2rem 0 0.45rem;
+}
+
+.outlook-play {
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  stroke-opacity: 0.35;
+}
+
+.outlook-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1rem;
+  margin: 0 0 0.85rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.outlook-swatch {
+  width: 0.7rem;
+  height: 3px;
+  border-radius: 99px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.28rem;
+}
+
+.outlook-swatch[data-series="revenue"] {
+  background: var(--shell-53);
+}
+
+.outlook-swatch[data-series="profit"] {
+  background: var(--shell-70);
+}
+
+.outlook-swatch[data-series="customers"] {
+  background: var(--shell-43);
+}
+
+.outlook-scrub-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.outlook-scrub-head label {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.outlook-chip {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--bar);
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+}
+
+.outlook-chip.is-est {
+  background: color-mix(in srgb, var(--shell-43) 22%, var(--bar));
+}
+
+.outlook-scrub input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.outlook-years {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+}
+
+.outlook-years button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  padding: 0.15rem 0.1rem;
+  cursor: pointer;
+}
+
+.outlook-years button.is-active {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 @media (max-width: 840px) {
   main {
     padding: 1.25rem 0.9rem max(3rem, env(safe-area-inset-bottom, 0px) + 1.75rem);
@@ -655,6 +770,10 @@ table td:first-child {
   }
 
   .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .outlook-metrics {
     grid-template-columns: 1fr;
   }
 
@@ -1224,7 +1343,8 @@ td .note {
   }
 
   .track-legend-btn:hover,
-  .sight-actions button:hover:not(:disabled) {
+  .sight-actions button:hover:not(:disabled),
+  .outlook-years button:hover {
     transform: translateY(-1px);
   }
 
