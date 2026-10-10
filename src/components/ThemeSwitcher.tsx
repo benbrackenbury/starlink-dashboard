@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { pressProps } from "@/lib/press";
 import {
+  applyOmarchy,
   applyTheme,
   readStoredTheme,
   storeTheme,
+  subscribeOmarchy,
   type ThemePref,
 } from "@/lib/theme";
 
@@ -74,6 +76,7 @@ const OPTIONS: {
 
 export function ThemeSwitcher() {
   const [pref, setPref] = useState<ThemePref>("system");
+  const [omarchyName, setOmarchyName] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = readStoredTheme();
@@ -82,17 +85,33 @@ export function ThemeSwitcher() {
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
+      if (window.omarchy && Object.keys(window.omarchy.colors()).length) return;
       const current = readStoredTheme();
       if (current === "system") applyTheme("system");
     };
     media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
+    const stopOmarchy = subscribeOmarchy((api) => {
+      setOmarchyName(api.theme || "Omarchy");
+      applyOmarchy(api);
+    });
+    return () => {
+      media.removeEventListener("change", onChange);
+      stopOmarchy();
+    };
   }, []);
 
   function choose(next: ThemePref) {
     setPref(next);
     storeTheme(next);
     applyTheme(next);
+  }
+
+  if (omarchyName) {
+    return (
+      <p className="omarchy-chip" title="Following your Omarchy desktop theme">
+        {omarchyName}
+      </p>
+    );
   }
 
   return (
