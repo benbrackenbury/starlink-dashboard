@@ -7,6 +7,20 @@ export const THEME_BG: Record<ResolvedTheme, string> = {
   dark: "#101010",
 };
 
+export type OmarchyApi = {
+  theme: string;
+  mode: string;
+  color(name: string): string | undefined;
+  colors(): Record<string, string>;
+  onChange(cb: (colors: Record<string, string>) => void): () => void;
+};
+
+declare global {
+  interface Window {
+    omarchy?: OmarchyApi;
+  }
+}
+
 export function isThemePref(value: string | null | undefined): value is ThemePref {
   return value === "light" || value === "dark" || value === "system";
 }
@@ -20,8 +34,7 @@ export function resolveTheme(pref: ThemePref): ResolvedTheme {
   return pref;
 }
 
-export function syncThemeColor(resolved: ResolvedTheme) {
-  const color = THEME_BG[resolved];
+export function syncThemeColor(resolved: ResolvedTheme, color = THEME_BG[resolved]) {
   const nodes = document.querySelectorAll('meta[name="theme-color"]');
   if (!nodes.length) {
     const meta = document.createElement("meta");
@@ -43,6 +56,52 @@ export function applyTheme(pref: ThemePref) {
   root.dataset.themePref = pref;
   root.style.colorScheme = resolved;
   syncThemeColor(resolved);
+}
+
+export function applyOmarchy(api: OmarchyApi) {
+  const resolved: ResolvedTheme = api.mode === "light" ? "light" : "dark";
+  const root = document.documentElement;
+  root.dataset.theme = resolved;
+  root.style.colorScheme = resolved;
+  const bg = api.color("background")?.trim();
+  syncThemeColor(resolved, bg || THEME_BG[resolved]);
+}
+
+export function subscribeOmarchy(onLive: (api: OmarchyApi) => void): () => void {
+  let unsub: (() => void) | undefined;
+
+  const bind = () => {
+    const api = window.omarchy;
+    if (!api) return false;
+    if (unsub) return true;
+    unsub = api.onChange((colors) => {
+      if (Object.keys(colors).length) onLive(api);
+    });
+    if (Object.keys(api.colors()).length) onLive(api);
+    return true;
+  };
+
+  const tick = window.setInterval(() => {
+    if (bind()) window.clearInterval(tick);
+  }, 300);
+  const kill = window.setTimeout(() => window.clearInterval(tick), 8000);
+  const mo = new MutationObserver(() => {
+    if (bind()) {
+      window.clearInterval(tick);
+      window.clearTimeout(kill);
+    }
+  });
+  mo.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-omarchy-theme", "data-omarchy-mode"],
+  });
+  bind();
+  return () => {
+    window.clearInterval(tick);
+    window.clearTimeout(kill);
+    mo.disconnect();
+    unsub?.();
+  };
 }
 
 export function readStoredTheme(): ThemePref {
@@ -72,10 +131,14 @@ export const themeBootScript = `(function(){
   var dark=window.matchMedia('(prefers-color-scheme: dark)').matches;
   var resolved=pref==='system'?(dark?'dark':'light'):pref;
   var root=document.documentElement;
+  var omMode=root.getAttribute('data-omarchy-mode');
+  if(omMode==='light'||omMode==='dark') resolved=omMode;
   root.dataset.theme=resolved;
   root.dataset.themePref=pref;
   root.style.colorScheme=resolved;
   var color=resolved==='dark'?${JSON.stringify(THEME_BG.dark)}:${JSON.stringify(THEME_BG.light)};
+  var omBg=getComputedStyle(root).getPropertyValue('--omarchy-background').trim();
+  if(omBg) color=omBg;
   var metas=document.querySelectorAll('meta[name="theme-color"]');
   if(!metas.length){
     var tag=document.createElement('meta');

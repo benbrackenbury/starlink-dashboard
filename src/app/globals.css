@@ -1,51 +1,54 @@
 :root,
 html[data-theme="light"] {
   color-scheme: light;
-  --bg: #f6f6f6;
-  --ink: #141414;
-  --muted: #5c5c5c;
-  --line: #e2e2e2;
-  --card: #fff;
-  --bar: #f0f0f0;
-  --accent: #141414;
-  --accent-ink: #f6f6f6;
-  --shell-43: #b15b12;
-  --shell-53: #1f4d3a;
-  --shell-70: #215a8c;
-  --shell-97: #6b3a8c;
+  --bg: var(--omarchy-background, #f6f6f6);
+  --ink: var(--omarchy-foreground, #141414);
+  --muted: var(--omarchy-dark-foreground, #5c5c5c);
+  --line: var(--omarchy-muted, #e2e2e2);
+  --card: var(--omarchy-lighter-background, #fff);
+  --bar: var(--omarchy-selection, #f0f0f0);
+  --accent: var(--omarchy-accent, #141414);
+  --accent-ink: var(--omarchy-darker-background, #f6f6f6);
+  --shell-43: var(--omarchy-orange, #b15b12);
+  --shell-53: var(--omarchy-green, #1f4d3a);
+  --shell-70: var(--omarchy-blue, #215a8c);
+  --shell-97: var(--omarchy-magenta, #6b3a8c);
+  --live: var(--omarchy-red, #c23b22);
 }
 
 html[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #101010;
-  --ink: #f1f1f1;
-  --muted: #9a9a9a;
-  --line: #2a2a2a;
-  --card: #181818;
-  --bar: #222;
-  --accent: #f1f1f1;
-  --accent-ink: #101010;
-  --shell-43: #e09a55;
-  --shell-53: #8fbfa8;
-  --shell-70: #7eb3d9;
-  --shell-97: #c49ad6;
+  --bg: var(--omarchy-background, #101010);
+  --ink: var(--omarchy-foreground, #f1f1f1);
+  --muted: var(--omarchy-dark-foreground, #9a9a9a);
+  --line: var(--omarchy-muted, #2a2a2a);
+  --card: var(--omarchy-lighter-background, #181818);
+  --bar: var(--omarchy-selection, #222);
+  --accent: var(--omarchy-accent, #f1f1f1);
+  --accent-ink: var(--omarchy-darker-background, #101010);
+  --shell-43: var(--omarchy-orange, #e09a55);
+  --shell-53: var(--omarchy-green, #8fbfa8);
+  --shell-70: var(--omarchy-blue, #7eb3d9);
+  --shell-97: var(--omarchy-magenta, #c49ad6);
+  --live: var(--omarchy-red, #c23b22);
 }
 
 @media (prefers-color-scheme: dark) {
   html:not([data-theme]) {
     color-scheme: dark;
-    --bg: #101010;
-    --ink: #f1f1f1;
-    --muted: #9a9a9a;
-    --line: #2a2a2a;
-    --card: #181818;
-    --bar: #222;
-    --accent: #f1f1f1;
-    --accent-ink: #101010;
-    --shell-43: #e09a55;
-    --shell-53: #8fbfa8;
-    --shell-70: #7eb3d9;
-    --shell-97: #c49ad6;
+    --bg: var(--omarchy-background, #101010);
+    --ink: var(--omarchy-foreground, #f1f1f1);
+    --muted: var(--omarchy-dark-foreground, #9a9a9a);
+    --line: var(--omarchy-muted, #2a2a2a);
+    --card: var(--omarchy-lighter-background, #181818);
+    --bar: var(--omarchy-selection, #222);
+    --accent: var(--omarchy-accent, #f1f1f1);
+    --accent-ink: var(--omarchy-darker-background, #101010);
+    --shell-43: var(--omarchy-orange, #e09a55);
+    --shell-53: var(--omarchy-green, #8fbfa8);
+    --shell-70: var(--omarchy-blue, #7eb3d9);
+    --shell-97: var(--omarchy-magenta, #c49ad6);
+    --live: var(--omarchy-red, #c23b22);
   }
 }
 
@@ -361,6 +364,19 @@ p.lede {
 
 .theme-switcher button.is-active svg {
   transform: scale(1.08);
+}
+
+.omarchy-chip {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: var(--bar);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.38rem 0.78rem;
+  white-space: nowrap;
 }
 
 .hero {
@@ -1217,17 +1233,17 @@ td .note {
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 50%;
-  background: #c23b22;
-  box-shadow: 0 0 0 0 rgba(194, 59, 34, 0.55);
+  background: var(--live);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--live) 55%, transparent);
   animation: live-dot 1.4s ease-out infinite;
 }
 
 @keyframes live-dot {
   0% {
-    box-shadow: 0 0 0 0 rgba(194, 59, 34, 0.5);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--live) 50%, transparent);
   }
   100% {
-    box-shadow: 0 0 0 0.45rem rgba(194, 59, 34, 0);
+    box-shadow: 0 0 0 0.45rem color-mix(in srgb, var(--live) 0%, transparent);
   }
 }
 
